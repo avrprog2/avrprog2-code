@@ -53,7 +53,7 @@ using namespace std;
  */
 void usage() {
 	cout << endl;
-	cout << "Usage: " << PACKAGE_NAME << " (--mcu | -m) (<mcutype> | <file>.xml | list)"<< endl;
+	cout << "Usage: " << PACKAGE_NAME << " [(--mcu | -m) (<mcutype> | <file>.xml | list)]"<< endl;
 	cout << "	[--help | -h] [--version] [-d] [-d]"									<< endl;
 	cout << "	[(--frequency | -f) <frequency>]"										<< endl;
 	cout << "	[--erase]"																<< endl;
@@ -65,6 +65,7 @@ void usage() {
 	cout << "  --mcu, -m <mcutype>     Specify the mcu type by name."					<< endl;
 	cout << "            <file>.xml    Specify the path to a device configuration file."<< endl;
 	cout << "            list          Get a list of supported devices." 				<< endl;
+	cout << "                          If no mcu type is given, autodetection gets enabled." << endl;
 	cout << "  --help, -h              Display this usage message." 					<< endl;
 	cout << "  --version               Print version informations." 					<< endl;
 	cout << "  -d                      Print more information."							<< endl;
@@ -187,7 +188,6 @@ int main(int argc, char** argv) {
 #else
 		COut::d("Writing of fuse bytes is disabled");
 #endif
-		COut::d("");
 
 		// execute actions without hardware access
 		// help, version, list
@@ -206,9 +206,6 @@ int main(int argc, char** argv) {
 			CAVRDevice::listDevices();
 			return returnValue;
 		}
-
-		// check required arguments
-		if (mcu.size() == 0) throw CLArgumentException("No mcu (-m) type specified.");
 
 		if (flash.size() != 0) {
 			COut::d("Prepare buffer for flash operations.");
@@ -232,8 +229,8 @@ int main(int argc, char** argv) {
 			COut::d("");
 		}
 
-		prog = new CAVRprog(mcu, frequency);
-		prog->connect();
+		prog = new CAVRprog(frequency);
+		prog->connect(mcu);
 		cout << "Connected to '" << prog->name() << "'." << endl;
 
 		// this is only for output
@@ -262,7 +259,7 @@ int main(int argc, char** argv) {
 				else {
 					prog->writeFuses(fusesOptions->getLfuse());
 				}
-				cout << prog->fusesSize() << " fuses byte written" << endl;
+				cout << fusesOptions->getNumOfFuses() << " fuses byte written" << endl;
 
 				if (verify == true) {
 					cout << endl << "Verify fuse bytes..." << endl;
@@ -270,7 +267,7 @@ int main(int argc, char** argv) {
 						throw MyException("Verify fuse bytes failed.");
 					}
 					else {
-						cout << "OK, " << prog->fusesSize() << " fuse bytes verified" << endl;
+						cout << "OK, " << fusesOptions->getBufferSize() << " fuse bytes verified" << endl;
 					}
 				}
 #else
@@ -298,7 +295,7 @@ int main(int argc, char** argv) {
 					break;
 				}
 				delete[] buffer;
-				cout << prog->fusesSize() << " fuse bytes read" << endl;
+				cout << size << " fuse bytes read" << endl;
 				break;
 			case VERIFY:
 				cout << endl << "Verify fuse bytes..." << endl;
@@ -309,7 +306,7 @@ int main(int argc, char** argv) {
 				else {
 					cout << "OK";
 				}
-				cout << ", " << prog->fusesSize() << " fuse bytes verified" << endl;
+				cout << ", " << fusesOptions->getBufferSize() << " fuse bytes verified" << endl;
 				break;
 			}
 		}
@@ -422,7 +419,13 @@ int main(int argc, char** argv) {
 	}
 	catch (DeviceNotFoundException &e) {
 		cerr << e.what() << endl;
-		CAVRDevice::listDevices();
+		try {
+			CAVRDevice::listDevices();
+		}
+		catch (DeviceException &e) {
+			cerr << e.what() << endl;
+		}
+		cerr << "Exiting..." << endl;
 		returnValue = COMMON_ERROR_NUMBER;
 	}
 	catch (MyException &e) {

@@ -35,19 +35,13 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 /// USB interface number
 #define INTERFACE	0
 
-#ifndef SOCKET_AUTODETECTION
-#define SOCKET_AUTODETECTION 1
-#endif
-
 #ifndef WRITE_FUSES_SUPPORT
 #define WRITE_FUSES_SUPPORT 1
 #endif
 
 /// Position of the mcu package on the mcu board
 typedef enum {
-#ifdef SOCKET_AUTODETECTION
 	AUTO_DETECT = 0x00,
-#endif
 	TQFP100	= 0x01,
 	TQFP64	= 0x02,
 } socket_t;

@@ -31,6 +31,152 @@ using namespace boost::filesystem;
 using namespace boost::property_tree;
 
 CAVRDevice::CAVRDevice(string deviceFile) {
+	openDevicefile(deviceFile);
+}
+
+CAVRDevice::CAVRDevice(uint32_t deviceSignature) {
+	bool found = false;
+	string deviceFile;
+	string homeConfigDir;
+
+	homeConfigDir = getHomeDir() + HOME_CONFIG_DIR;
+
+	try {
+		// search all *.xml files in CONFIG_DIR
+		if (is_directory(CONFIG_DIR)) {
+			directory_iterator endIter;
+			for (directory_iterator dirIter(CONFIG_DIR); dirIter != endIter; dirIter++) {
+				if (is_regular_file(dirIter->status())) {
+					if (dirIter->path().extension().compare(".xml") == 0) {
+						deviceFile = dirIter->path().stem();
+						if (hasDeviceSignature(deviceSignature, deviceFile) == true) {
+							found = true;
+							break;
+						}
+					}
+				}
+			}
+		}
+
+		if (found == false) {
+			// search all *.xml files in HOME_CONFIG_DIR
+			if (is_directory(homeConfigDir)) {
+				directory_iterator endIter;
+				for (directory_iterator dirIter(homeConfigDir); dirIter != endIter; dirIter++) {
+					if (is_regular_file(dirIter->status())) {
+						if (dirIter->path().extension().compare(".xml") == 0) {
+							deviceFile = dirIter->path().stem();
+							if (hasDeviceSignature(deviceSignature, deviceFile) == true) {
+								found = true;
+								break;
+							}
+						}
+					}
+				}
+			}
+		}
+
+		if (found == false) {
+			throw DeviceNotFoundException("No device description file found for device signature 0x" + CFormat::intToHexString(deviceSignature) + ".");
+		}
+	}
+	catch (const std::exception &e) {
+		throw DeviceException((string)"Error while searching for device descriptions files.\n" + e.what());
+	}
+}
+
+bool CAVRDevice::hasDeviceSignature(uint32_t deviceSignature, string deviceFile) {
+	try {
+		openDevicefile(deviceFile);
+		if (this->deviceSignature() == deviceSignature) {
+			return true;
+		}
+		else {
+			return false;
+		}
+	}
+	catch (DeviceException &e) {
+		return false;
+	}
+}
+
+int CAVRDevice::flashSize() {
+	return _flashSize;
+}
+
+int CAVRDevice::eepromSize() {
+	return _eepromSize;
+}
+
+int CAVRDevice::fusesSize() {
+	return _fusesSize;
+}
+
+string CAVRDevice::name() {
+	return _name;
+}
+
+uint32_t CAVRDevice::deviceSignature() {
+	return _deviceSignature;
+}
+
+socket_t CAVRDevice::socket() {
+	return _socket;
+}
+
+string CAVRDevice::getHomeDir() {
+	char const* home = getenv("HOME");
+	string ret = home + (string)"/";
+
+	return ret;
+}
+
+void CAVRDevice::listDevices() {
+	bool configDirFound = false;
+	string homeConfigDir;
+
+	homeConfigDir = getHomeDir() + HOME_CONFIG_DIR;
+
+	try {
+		cout << "List of supported mcu types:" << endl;
+		// list all *.xml files in CONFIG_DIR
+		if (is_directory(CONFIG_DIR)) {
+			configDirFound = true;
+			cout << "system wide:" << endl;
+			directory_iterator endIter;
+			for (directory_iterator dirIter(CONFIG_DIR); dirIter != endIter; dirIter++) {
+				if (is_regular_file(dirIter->status())) {
+					if (dirIter->path().extension().compare(".xml") == 0) {
+						cout << "\t" << dirIter->path().stem() << endl;
+					}
+				}
+			}
+		}
+
+		// list all *.xml files in HOME_CONFIG_DIR
+		if (is_directory(homeConfigDir)) {
+			configDirFound = true;
+			cout << "user defined:" << endl;
+			directory_iterator endIter;
+			for (directory_iterator dirIter(homeConfigDir); dirIter != endIter; dirIter++) {
+				if (is_regular_file(dirIter->status())) {
+					if (dirIter->path().extension().compare(".xml") == 0) {
+						cout << "\t" << dirIter->path().stem() << endl;
+					}
+				}
+			}
+		}
+
+		if (configDirFound == false) {
+			throw DeviceException("Configuration directory '" + (string)CONFIG_DIR + "' does not exist.");
+		}
+	}
+	catch (const std::exception &e) {
+		throw DeviceException((string)"Error while searching for device descriptions files.\n" + e.what());
+	}
+}
+
+void CAVRDevice::openDevicefile(string deviceFile) {
 	string deviceFilePath;		// path from which the file is opened
 	string configPath;			// path to device description file in CONFIG_DIR
 	string homeConfigPath;		// path to device description file in HOME_CONFIG_DIR
@@ -38,14 +184,14 @@ CAVRDevice::CAVRDevice(string deviceFile) {
 	string deviceSignature;
 	string socket;
 
-	if (deviceFile.size() == 0) {
-		throw DeviceNotFoundException("Device description file '" + deviceFile + "' not found.");
-	}
+	//if (deviceFile.size() == 0) {
+	//	throw DeviceNotFoundException("Device description file '" + deviceFile + "' not found.");
+	//}
 
 	// create filepath in config dir
 	configPath = CONFIG_DIR;
 	configPath.append(deviceFile + ".xml");
-	
+
 	// create filepath in home dir
 	homeConfigPath = getHomeDir() + HOME_CONFIG_DIR;
 	homeConfigPath.append(deviceFile + ".xml");
@@ -116,94 +262,15 @@ CAVRDevice::CAVRDevice(string deviceFile) {
 		else if (socket.compare("TQFP100") == 0) {
 			_socket = TQFP100;
 		}
-#ifdef SOCKET_AUTODETECTION
 		else {
 			_socket = AUTO_DETECT;
 		}
-#else
-		throw DeviceException("Invalid socket in device description file.");
-#endif
+
 		COut::d("\tSocket: " + socket);
 		COut::d("");
 	}
 	catch (std::exception &e) {
 		throw DeviceException("Error while reading device file.\n" + (string)e.what());
-	}
-}
-
-int CAVRDevice::flashSize() {
-	return _flashSize;
-}
-
-int CAVRDevice::eepromSize() {
-	return _eepromSize;
-}
-
-int CAVRDevice::fusesSize() {
-	return _fusesSize;
-}
-
-string CAVRDevice::name() {
-	return _name;
-}
-
-uint32_t CAVRDevice::deviceSignature() {
-	return _deviceSignature;
-}
-
-socket_t CAVRDevice::socket() {
-	return _socket;
-}
-
-string CAVRDevice::getHomeDir() {
-	char const* home = getenv("HOME");
-	string ret = home + (string)"/";
-	
-	return ret;
-}
-
-void CAVRDevice::listDevices() {
-	bool configDirFound = false;
-	string homeConfigDir;
-	
-	homeConfigDir = getHomeDir() + HOME_CONFIG_DIR;
-	
-	try {
-		cout << "List of supported mcu types:" << endl;
-		// list all *.xml files in CONFIG_DIR
-		if (is_directory(CONFIG_DIR)) {
-			configDirFound = true;
-			cout << "system wide:" << endl;
-			directory_iterator endIter;
-			for (directory_iterator dirIter(CONFIG_DIR); dirIter != endIter; dirIter++) {
-				if (is_regular_file(dirIter->status())) {
-					if (dirIter->path().extension().compare(".xml") == 0) {
-						cout << "\t" << dirIter->path().stem() << endl;
-					}
-				}
-			}
-		}
-		
-		// list all *.xml files in HOME_CONFIG_DIR
-		if (is_directory(homeConfigDir)) {
-			configDirFound = true;
-			cout << "user defined:" << endl;
-			directory_iterator endIter;
-			for (directory_iterator dirIter(homeConfigDir); dirIter != endIter; dirIter++) {
-				if (is_regular_file(dirIter->status())) {
-					if (dirIter->path().extension().compare(".xml") == 0) {
-						cout << "\t" << dirIter->path().stem() << endl;
-					}
-				}
-			}
-		}
-		
-		if (configDirFound == false) {
-			throw DeviceException("Configuration directory '" + (string)CONFIG_DIR + "' does not exist.");
-		}
-	}
-	catch (const std::exception &e) {
-		throw DeviceException((string)"Error while searching for device descriptions files.\n" + e.what());
 	}
 }
 

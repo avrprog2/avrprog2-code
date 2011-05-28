@@ -54,6 +54,13 @@ public:
 	 * @throw	DeviceNotFoundException if the specified device description file does not exists.
 	 */
 	CAVRDevice(string deviceFile);
+
+	/**
+	 * @param	deviceSignature	signature of a device in the CONFIG_DIR.
+	 * @throw	DeviceNotFoundException if the specified device description file does not exists.
+	 */
+	CAVRDevice(uint32_t deviceSignature);
+
 	virtual ~CAVRDevice();
 
 	/**
@@ -103,11 +110,15 @@ protected:
 	uint32_t _deviceSignature;
 	socket_t _socket;
 	string _name;
-	
+
 	/**
 	 * @return	the path to the users home deirectory
 	 */
 	static string getHomeDir();
+
+private:
+	void openDevicefile(string deviceFile);
+	bool hasDeviceSignature(uint32_t deviceSignature, string deviceFile);
 };
 
 /**

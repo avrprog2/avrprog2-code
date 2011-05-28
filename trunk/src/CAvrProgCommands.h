@@ -36,18 +36,25 @@ class CAvrProgCommands: public CUSBCommunication {
 public:
 	/**
 	 * @brief	Start a session with the hardware programmer.
-	 * @param	deviceSignature	Signature of the expected device.
-	 * @param	socket			Socket of the expected device.
+	 * @param	frequency	Frequency of the target device in Hz.
 	 */
-	CAvrProgCommands(uint32_t deviceSignature, socket_t socket, int frequency);
+	CAvrProgCommands(int frequency);
 	virtual ~CAvrProgCommands();
 
 	/**
 	 * @brief	Connect to target mcu
 	 *
 	 * Must be called before any operations on the target can be performed.
+	 * @param	socket		Socket of the expected device.
 	 */
-	void connect();
+	void connect(socket_t socket);
+
+	/**
+	 * @brief	Reads the device signature
+	 *
+	 * @return	device signature
+	 */
+	uint32_t getDeviceSignature();
 
 	/**
 	 * @brief	Perform a chip erase.
@@ -114,8 +121,8 @@ public:
 private:
 	static const int PAGE_SIZE = 256;		///< size of a flash memory page
 	static const int SECTION_SIZE = 256/4;	///< size of a eeprom memory section (a section can be programmed with one USB transfer)
-	const uint32_t deviceSignature;
-	socket_t socket;
+	//const uint32_t deviceSignature;
+	//socket_t socket;
 
 	// constants
 	typedef enum {
@@ -143,7 +150,6 @@ private:
 	void programmerInfo(programmer_info_t info, uint8_t **retBuffer, uint8_t *retLen);
 	void programmer(programmer_action_t action);
 	void delayMs(uint8_t time);
-	uint32_t getDeviceSignature();
 	bool detectDevice(bool reportError);
 	void executeCommands(uint8_t *setupCommand, uint8_t numOfCommands, uint8_t *data);
 	uint16_t checksum(uint8_t *buffer, int size);

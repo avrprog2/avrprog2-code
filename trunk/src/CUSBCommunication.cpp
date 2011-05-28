@@ -33,7 +33,7 @@ CUSBCommunication::CUSBCommunication() {
 	COut::dd("\tVendor ID: 0x" + CFormat::intToHexString(VENDOR_ID));
 	COut::dd("\tDevice ID: 0x" + CFormat::intToHexString(DEVICE_ID));
 	COut::dd("\tInterface: " + CFormat::intToHexString(INTERFACE));
-	COut::d("");
+	COut::dd("");
 
 	// init libusb
 	libusb_init(&context);
