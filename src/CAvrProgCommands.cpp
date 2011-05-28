@@ -54,7 +54,8 @@ using namespace std;
  * The author does not exactly know the meaning/effect of all low level commands, hence some commands are not closer described.
  */
 
-CAvrProgCommands::CAvrProgCommands(uint32_t _deviceSignature, socket_t _socket, int frequency) : deviceSignature(_deviceSignature), socket(_socket) {
+//CAvrProgCommands::CAvrProgCommands(uint32_t _deviceSignature, socket_t _socket, int frequency) : deviceSignature(_deviceSignature), socket(_socket) {
+CAvrProgCommands::CAvrProgCommands(int frequency) {
 	uint8_t *buffer;
 	uint8_t len;
 
@@ -69,8 +70,7 @@ CAvrProgCommands::CAvrProgCommands(uint32_t _deviceSignature, socket_t _socket, 
 
 // public function
 
-void CAvrProgCommands::connect() {
-#ifdef SOCKET_AUTODETECTION
+void CAvrProgCommands::connect(socket_t socket) {
 	// the autodetection feature is not in the original programmer
 	if (socket == AUTO_DETECT) {
 		cout << "Autodetect programming pins..." << endl;
@@ -85,7 +85,6 @@ void CAvrProgCommands::connect() {
 			throw CommandException("No device found during autodetection of programming pins.");
 		}
 	}
-#endif
 
 	selectSocket(socket);
 	programmer(ACTIVATE);
@@ -309,20 +308,20 @@ uint8_t *CAvrProgCommands::readFuses(int size) {
 // internal functions
 
 /*
- * checks if a device is present and compares the signature with the expected one
+ * checks if a device is present
  */
 void CAvrProgCommands::checkDevice() {
 	uint32_t deviceSignature;
 
 	detectDevice(false);		// check if a target device is present
-	deviceSignature = getDeviceSignature();
+	//deviceSignature = getDeviceSignature();
 
-	COut::d("Device Signature: 0x" + CFormat::intToHexString(deviceSignature));
+	//COut::d("Device Signature: 0x" + CFormat::intToHexString(deviceSignature));
 
 	// check device signature
-	if (deviceSignature != this->deviceSignature) {
-		throw CommandException("Wrong device signature: expected 0x" + CFormat::intToHexString(this->deviceSignature) + " but found 0x" + CFormat::intToHexString(deviceSignature) + ".");
-	}
+	//if (deviceSignature != this->deviceSignature) {
+	//	throw CommandException("Wrong device signature: expected 0x" + CFormat::intToHexString(this->deviceSignature) + " but found 0x" + CFormat::intToHexString(deviceSignature) + ".");
+	//}
 }
 
 /*

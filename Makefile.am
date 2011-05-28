@@ -53,7 +53,8 @@ dist_udevrules_DATA = 60-avrpog.rules
 	
 # additional files
 dist_noinst_DATA = \
-	readme.txt
+	readme.txt \
+	changelog.txt
 
 # build documentation and manpage
 

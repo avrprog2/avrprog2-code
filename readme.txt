@@ -29,7 +29,6 @@ This will generate a html documentation of the source.
 
 The application is configurable within avrprog.h:
 - WRITE_FUSES_SUPPORT: turn on/off writing of fuse bytes
-- SOCKET_AUTODETECTION: turn on off socket autodetection support
 - CONFIG_DIR: system wide configuration directory
 - HOME_CONFIG_DIR: user specific configuration directory
 

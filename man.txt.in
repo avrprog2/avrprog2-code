@@ -7,7 +7,7 @@ A Linux tool for the MikroElektronika (www.mikroe.com) AVRprog2 programming hard
 @section syn Synopsis
 
 @code
-@PACKAGE@ (--mcu | -m) (<mcutype> | <file>.xml | list)
+@PACKAGE@ [(--mcu | -m) (<mcutype> | <file>.xml | list)]
 	[--help | -h] [--version] [-d] [-d]
 	[(--frequency | -f) <frequency>]
 	[--erase]
@@ -23,6 +23,7 @@ A Linux tool for the MikroElektronika (www.mikroe.com) AVRprog2 programming hard
   --mcu, -m <mcutype>     Specify the mcu type by name.
             <file>.xml    Specify the path to a device configuration file.
             list          Get a list of supported devices.
+                          If no mcu type is given, autodetection gets enabled.
   --help, -h              Display this usage message.
   --version               Print version informations.
   -d                      Print more information.

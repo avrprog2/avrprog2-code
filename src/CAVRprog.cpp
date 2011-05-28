@@ -19,46 +19,61 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "CAVRprog.h"
 #include <cstring>
+#include <iostream>
 
-CAVRprog::CAVRprog(string deviceFile, int frequency) : CAVRDevice(deviceFile) {
-	// init programmer
-	programmer = new CAvrProgCommands(_deviceSignature, _socket, frequency);
+using namespace std;
+
+CAVRprog::CAVRprog(int frequency) : CAvrProgCommands(frequency) {
+
 }
 
-void CAVRprog::connect() {
-	programmer->connect();
+void CAVRprog::connect(string deviceFile) {
+	if (deviceFile.size() == 0) {		// autodetect device
+		CAvrProgCommands::connect(AUTO_DETECT);
+		cout << "Autodetect target device..." << endl;
+		uint32_t signature = getDeviceSignature();
+		device = new CAVRDevice(signature);
+	}
+	else {
+		device = new CAVRDevice(deviceFile);
+		CAvrProgCommands::connect(device->socket());
+	}
 }
 
-void CAVRprog::chipErase() {
-	programmer->chipErase();
+string CAVRprog::name() {
+	return device->name();
 }
+
+//void CAVRprog::chipErase() {
+//	programmer->chipErase();
+//}
 
 void CAVRprog::writeFlash(uint8_t *buffer, int size) {
-	if (size > _flashSize) {
+	if (size > device->flashSize()) {
 		throw ProgrammerException("Not enough flash memory.");
 	}
 
-	programmer->writeFlash(buffer, size);
+	CAvrProgCommands::writeFlash(buffer, size);
 }
 
 void CAVRprog::writeEEPROM(uint8_t *buffer, int size) {
-	if (size > _eepromSize) {
+	if (size > device->eepromSize()) {
 		throw ProgrammerException("Not enough eeprom memory.");
 	}
 
-	programmer->writeEEPROM(buffer, size);
+	CAvrProgCommands::writeEEPROM(buffer, size);
 }
 
 void CAVRprog::writeFuses(uint8_t lfuse, uint8_t hfuse, uint8_t efuse) {
-	if (3 != _fusesSize) {
+	if (3 != device->fusesSize()) {
 		throw ProgrammerException("Fuses Error.");
 	}
 
-	programmer->writeFuses(lfuse, hfuse, efuse);
+	CAvrProgCommands::writeFuses(lfuse, hfuse, efuse);
 }
 
 void CAVRprog::writeFuses(uint8_t lfuse, uint8_t hfuse) {
-	if (2 != _fusesSize) {
+	if (2 != device->fusesSize()) {
 		throw ProgrammerException("Fuses Error.");
 	}
 
@@ -66,7 +81,7 @@ void CAVRprog::writeFuses(uint8_t lfuse, uint8_t hfuse) {
 }
 
 void CAVRprog::writeFuses(uint8_t lfuse) {
-	if (1 != _fusesSize) {
+	if (1 != device->fusesSize()) {
 		throw ProgrammerException("Fuses Error.");
 	}
 
@@ -75,10 +90,10 @@ void CAVRprog::writeFuses(uint8_t lfuse) {
 
 int CAVRprog::readFlash(uint8_t **buffer) {
 	int lastData = -1;
-	*buffer = programmer->readFlash(_flashSize);
+	*buffer = CAvrProgCommands::readFlash(device->flashSize());
 
 	// cut off empty flash memory
-	for (int i=0; i<_flashSize; i++) {
+	for (int i=0; i<device->flashSize(); i++) {
 		if ((*buffer)[i] != EMPTY_FLASH_BYTE) {
 			lastData = i;
 		}
@@ -89,10 +104,10 @@ int CAVRprog::readFlash(uint8_t **buffer) {
 
 int CAVRprog::readEEPROM(uint8_t **buffer) {
 	int lastData = -1;
-	*buffer = programmer->readEEPROM(_eepromSize);
+	*buffer = CAvrProgCommands::readEEPROM(device->eepromSize());
 
 	// cut off empty eeprom memory
-	for (int i=0; i<_eepromSize; i++) {
+	for (int i=0; i<device->eepromSize(); i++) {
 		if ((*buffer)[i] != EMPTY_EEPROM_BYTE) {
 			lastData = i;
 		}
@@ -102,26 +117,26 @@ int CAVRprog::readEEPROM(uint8_t **buffer) {
 }
 
 int CAVRprog::readFuses(uint8_t **buffer) {
-	*buffer = programmer->readFuses(_fusesSize);
+	*buffer = CAvrProgCommands::readFuses(device->fusesSize());
 
-	return _fusesSize;
+	return device->fusesSize();
 }
 
 bool CAVRprog::verifyFlash(uint8_t *buffer, int size) {
 	bool equal = true;
 
-	if (size > _flashSize) {
+	if (size > device->flashSize()) {
 		return false;
 	}
 
-	uint8_t flashFile[_flashSize];
-	uint8_t *flashContent = programmer->readFlash(_flashSize);
+	uint8_t flashFile[device->flashSize()];
+	uint8_t *flashContent = CAvrProgCommands::readFlash(device->flashSize());
 
 	// extend buffer to flash size
 	memcpy(flashFile, buffer, size);
-	memset(flashFile+size, EMPTY_FLASH_BYTE, _flashSize-size);
+	memset(flashFile+size, EMPTY_FLASH_BYTE, device->flashSize()-size);
 
-	if (memcmp(flashFile, flashContent, _flashSize) != 0) {
+	if (memcmp(flashFile, flashContent, device->flashSize()) != 0) {
 		equal = false;
 	}
 
@@ -133,11 +148,11 @@ bool CAVRprog::verifyFlash(uint8_t *buffer, int size) {
 bool CAVRprog::fastVerifyFlash(uint8_t *buffer, int size) {
 	bool equal = true;
 
-	if (size > _flashSize) {
+	if (size > device->flashSize()) {
 		return false;
 	}
 
-	uint8_t *flashContent = programmer->readFlash(size);
+	uint8_t *flashContent = CAvrProgCommands::readFlash(size);
 
 	if (memcmp(buffer, flashContent, size) != 0) {
 		equal = false;
@@ -151,18 +166,18 @@ bool CAVRprog::fastVerifyFlash(uint8_t *buffer, int size) {
 bool CAVRprog::verifyEEPROM(uint8_t *buffer, int size) {
 	bool equal = true;
 
-	if (size > _eepromSize) {
+	if (size > device->eepromSize()) {
 		return false;
 	}
 
-	uint8_t eepromFile[_eepromSize];
-	uint8_t *eepromContent = programmer->readEEPROM(_eepromSize);
+	uint8_t eepromFile[device->eepromSize()];
+	uint8_t *eepromContent = CAvrProgCommands::readEEPROM(device->eepromSize());
 
 	// extend buffer to flash size
 	memcpy(eepromFile, buffer, size);
-	memset(eepromFile+size, EMPTY_FLASH_BYTE, _eepromSize-size);
+	memset(eepromFile+size, EMPTY_FLASH_BYTE, device->eepromSize()-size);
 
-	if (memcmp(eepromFile, eepromContent, _eepromSize) != 0) {
+	if (memcmp(eepromFile, eepromContent, device->eepromSize()) != 0) {
 		equal = false;
 	}
 
@@ -174,11 +189,11 @@ bool CAVRprog::verifyEEPROM(uint8_t *buffer, int size) {
 bool CAVRprog::fastVerifyEEPROM(uint8_t *buffer, int size) {
 	bool equal = true;
 
-	if (size > _eepromSize) {
+	if (size > device->eepromSize()) {
 		return false;
 	}
 
-	uint8_t *eepromContent = programmer->readEEPROM(size);
+	uint8_t *eepromContent = CAvrProgCommands::readEEPROM(size);
 
 	if (memcmp(buffer, eepromContent, size) != 0) {
 		equal = false;
@@ -191,12 +206,12 @@ bool CAVRprog::fastVerifyEEPROM(uint8_t *buffer, int size) {
 
 bool CAVRprog::verifyFuses(uint8_t *buffer, int size) {
 	bool equal = true;
-	uint8_t *fusesContent = programmer->readFuses(_fusesSize);
+	uint8_t *fusesContent = CAvrProgCommands::readFuses(device->fusesSize());
 
-	if (size != _fusesSize) {
+	if (size != device->fusesSize()) {
 		equal = false;
 	}
-	else if (memcmp(buffer, fusesContent, _fusesSize) != 0) {
+	else if (memcmp(buffer, fusesContent, device->fusesSize()) != 0) {
 		equal = false;
 	}
 
@@ -206,7 +221,9 @@ bool CAVRprog::verifyFuses(uint8_t *buffer, int size) {
 }
 
 CAVRprog::~CAVRprog() {
-	delete programmer;
+	if (device != NULL) {
+		delete device;
+	}
 }
 
 ProgrammerException::ProgrammerException(string err) : MyException(err) {

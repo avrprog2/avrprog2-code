@@ -35,13 +35,13 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
  * @throw	ProgrammerException on errors.
  */
-class CAVRprog : public CAVRDevice {
+class CAVRprog : public CAvrProgCommands {
 public:
 	/**
 	 * @param	deviceFile	name of the target mcu
 	 * @param	frequency	device frequency in Hz
 	 */
-	CAVRprog(string deviceFile, int frequency);
+	CAVRprog(int frequency);
 	virtual ~CAVRprog();
 
 	/**
@@ -49,12 +49,17 @@ public:
 	*
 	* Must be called before any operations on the target can be performed.
 	*/
-	void connect();
+	void connect(string deviceFile);
+
+	/**
+	* @return	Name of the connected microcontroller device.
+	*/
+	string name();
 
 	/**
 	 * @brief	Performs a chip erase.
 	 */
-	void chipErase();
+	//void chipErase();
 
 	/**
 	 * @brief	Writes to flash memory.
@@ -201,8 +206,7 @@ public:
 	bool verifyFuses(uint8_t *buffer, int size);
 
 protected:
-	CAvrProgCommands *programmer;	///< the real programmer, which interacts with the hardware
-
+	CAVRDevice *device;		///< target device description
 };
 
 /**
