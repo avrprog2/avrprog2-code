@@ -422,7 +422,13 @@ int main(int argc, char** argv) {
 	}
 	catch (DeviceNotFoundException &e) {
 		cerr << e.what() << endl;
-		CAVRDevice::listDevices();
+		try {
+			CAVRDevice::listDevices();
+		}
+		catch (DeviceException &e) {
+			cerr << e.what() << endl;
+		}
+		cerr << "Exiting..." << endl;
 		returnValue = COMMON_ERROR_NUMBER;
 	}
 	catch (MyException &e) {
