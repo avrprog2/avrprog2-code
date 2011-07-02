@@ -42,7 +42,6 @@ public:
 	CUSBCommunication();
 	virtual ~CUSBCommunication();
 	static const int BUFFER_LEN = 256;	///< Size of the internal buffer. This is also the limit of bytes that can be read with one transfer.
-	static const int TIMEOUT = 1000;	///< Communication timeout after which an error is reported.
 
 	/**
 	 * @brief	Isochronous read transfer.

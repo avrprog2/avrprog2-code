@@ -36,9 +36,8 @@ class CAvrProgCommands: public CUSBCommunication {
 public:
 	/**
 	 * @brief	Start a session with the hardware programmer.
-	 * @param	frequency	Frequency of the target device in Hz.
 	 */
-	CAvrProgCommands(int frequency);
+	CAvrProgCommands();
 	virtual ~CAvrProgCommands();
 
 	/**
@@ -118,11 +117,18 @@ public:
 	 */
 	uint8_t *readFuses(int size);
 
+	/**
+	 * @brief	Set the frequency of the target device
+	 *
+	 * @param frequency	Device frequency on Hz. If the value is smaller 0x100
+	 * 					it is sent to the programmer without processing.
+	 */
+	void setProgrammingSpeed(int frequency);
+
+
 private:
 	static const int PAGE_SIZE = 256;		///< size of a flash memory page
 	static const int SECTION_SIZE = 256/4;	///< size of a eeprom memory section (a section can be programmed with one USB transfer)
-	//const uint32_t deviceSignature;
-	//socket_t socket;
 
 	// constants
 	typedef enum {
@@ -144,7 +150,6 @@ private:
 	void checkDevice();
 	uint8_t *readMemory(int size, memory_t mem);
 	void selectSocket(socket_t socket);
-	void setProgrammingSpeed(int frequency);
 	void setExtendedAddress();
 	uint8_t *readMemoryPage(int pageNumber, memory_t mem);
 	void programmerInfo(programmer_info_t info, uint8_t **retBuffer, uint8_t *retLen);

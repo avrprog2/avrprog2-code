@@ -68,7 +68,7 @@ void CUSBCommunication::int_read(int endpoint, uint8_t **buffer, int *len) {
 
 	urbLen = *len;
 
-	err = libusb_interrupt_transfer(dev, endpoint | LIBUSB_ENDPOINT_IN, this->buffer, urbLen, len, TIMEOUT);
+	err = libusb_interrupt_transfer(dev, endpoint | LIBUSB_ENDPOINT_IN, this->buffer, urbLen, len, USB_TIMEOUT);
 	if (err != LIBUSB_SUCCESS) {
 		str << err;
 		throw USBCommunicationException("Error (" + str.str() + ") while read (interrupt)");
@@ -81,7 +81,7 @@ void CUSBCommunication::int_write(int endpoint, uint8_t *buffer, int len) {
 	stringstream str;
 	int transfered;
 
-	err = libusb_interrupt_transfer(dev, endpoint | LIBUSB_ENDPOINT_OUT, buffer, len, &transfered, TIMEOUT);
+	err = libusb_interrupt_transfer(dev, endpoint | LIBUSB_ENDPOINT_OUT, buffer, len, &transfered, USB_TIMEOUT);
 	if (err != LIBUSB_SUCCESS) {
 		str << err;
 		throw USBCommunicationException("Error (" + str.str() + ") while write (interrupt)");
@@ -118,7 +118,7 @@ void CUSBCommunication::iso_transfer(int endpoint, uint8_t *buffer, int *len) {
 
 	transfer->flags = LIBUSB_TRANSFER_FREE_TRANSFER;
 
-	libusb_fill_iso_transfer(transfer, dev, endpoint, buffer, *len, numOfPackets, callback, this, TIMEOUT);
+	libusb_fill_iso_transfer(transfer, dev, endpoint, buffer, *len, numOfPackets, callback, this, USB_TIMEOUT);
 	libusb_set_iso_packet_lengths(transfer, libusb_get_max_iso_packet_size(libusb_get_device(dev), endpoint));
 
 	// start transfer

@@ -171,6 +171,6 @@ int CMemoryOptions::getBufferSize() {
 
 CMemoryOptions::~CMemoryOptions() {
 	if (buffer != NULL) {
-		delete buffer;
+		delete[] buffer;
 	}
 }

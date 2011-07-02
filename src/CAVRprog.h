@@ -24,6 +24,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "CAVRDevice.h"
 #include "MyException.h"
 
+typedef enum {
+	FREQUENCY_AUTODETECT	= -1,
+} frequency_t;
+
 /**
  * @brief THE Programmer
  *
@@ -39,27 +43,28 @@ class CAVRprog : public CAvrProgCommands {
 public:
 	/**
 	 * @param	deviceFile	name of the target mcu
-	 * @param	frequency	device frequency in Hz
 	 */
-	CAVRprog(int frequency);
+	CAVRprog();
 	virtual ~CAVRprog();
 
 	/**
 	* @brief	Connect to target mcu
 	*
 	* Must be called before any operations on the target can be performed.
+	*
+	* @param	frequency	device frequency in Hz
 	*/
-	void connect(string deviceFile);
+	void connect(string deviceFile, int frequency);
 
 	/**
 	* @return	Name of the connected microcontroller device.
 	*/
-	string name();
+	//string name();
 
 	/**
 	 * @brief	Performs a chip erase.
 	 */
-	//void chipErase();
+	//void chipErase();		// todo: why ???
 
 	/**
 	 * @brief	Writes to flash memory.
