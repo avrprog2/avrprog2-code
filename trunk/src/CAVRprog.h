@@ -57,16 +57,6 @@ public:
 	void connect(string deviceFile, int frequency);
 
 	/**
-	* @return	Name of the connected microcontroller device.
-	*/
-	//string name();
-
-	/**
-	 * @brief	Performs a chip erase.
-	 */
-	//void chipErase();		// todo: why ???
-
-	/**
 	 * @brief	Writes to flash memory.
 	 * @param	buffer	A buffer array.
 	 * @param	size	Length of the buffer array.
