@@ -20,14 +20,29 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "CAVRprog.h"
 #include <cstring>
 #include <iostream>
+#include "CFormat.h"
+#include "COut.h"
 
 using namespace std;
 
-CAVRprog::CAVRprog(int frequency) : CAvrProgCommands(frequency) {
+const int frequencies[] = {128000, 1000000, 4000000, 8000000, 16000000};	///< frequencies for speed autodetection
+
+CAVRprog::CAVRprog() : CAvrProgCommands(), device(NULL) {
 
 }
 
-void CAVRprog::connect(string deviceFile) {
+void CAVRprog::connect(string deviceFile, int frequency) {
+	bool error = false;
+	unsigned int f;
+	uint32_t deviceSignature;
+
+	if (frequency < 0) {						// autodetect programming frequency
+		setProgrammingSpeed(frequencies[0]);	// set low frequency and increase it later
+	}
+	else {
+		setProgrammingSpeed(frequency);
+	}
+
 	if (deviceFile.size() == 0) {		// autodetect device
 		CAvrProgCommands::connect(AUTO_DETECT);
 		cout << "Autodetect target device..." << endl;
@@ -37,17 +52,50 @@ void CAVRprog::connect(string deviceFile) {
 	else {
 		device = new CAVRDevice(deviceFile);
 		CAvrProgCommands::connect(device->socket());
+
+
+	}
+
+	deviceSignature = getDeviceSignature();
+
+	COut::d("Device Signature: 0x" + CFormat::intToHexString(deviceSignature));
+
+	//check device signature
+	if (deviceSignature != device->deviceSignature()) {
+		throw ProgrammerException("Wrong device signature: expected 0x" + CFormat::intToHexString(device->deviceSignature()) + " but found 0x" + CFormat::intToHexString(deviceSignature) + ".");
+	}
+
+	cout << "Connected to '" << device->name() << "'." << endl;
+
+	if (frequency < 0) {				// autodetect programming frequency
+		cout << "Autodetect programming frequency..." << endl;
+
+		for (f=0; f<sizeof(frequencies)/sizeof(int); f++) {
+			setProgrammingSpeed(frequencies[f]);
+
+			if (getDeviceSignature() != device->deviceSignature()) {
+				error = true;
+				break;
+			}
+		}
+
+		if (error == true) {			// set lower frequency
+			if (f == 0) {
+				throw ProgrammerException("Autodetect device frequency failed.");
+			}
+			else {
+				setProgrammingSpeed(frequencies[f-1]);
+			}
+		}
+
+		cout << "Set frequency to " << (double)(frequencies[f-1]/1000000.0) << "MHz." << endl;
 	}
 }
-
+/*
 string CAVRprog::name() {
 	return device->name();
 }
-
-//void CAVRprog::chipErase() {
-//	programmer->chipErase();
-//}
-
+*/
 void CAVRprog::writeFlash(uint8_t *buffer, int size) {
 	if (size > device->flashSize()) {
 		throw ProgrammerException("Not enough flash memory.");

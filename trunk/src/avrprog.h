@@ -64,7 +64,10 @@ typedef enum {
 #endif
 
 /// An error is reported if more than MAX_READ_CYCLES read attempts failed when reading a memory page.
-#define MAX_READ_CYCLES	100
+#define MAX_READ_CYCLES	1000
+
+/// Communication timeout after which an error is reported.
+#define USB_TIMEOUT		3000
 
 /// Polling interval for the programmer to look if a page read has finished.
 #define READ_PAGE_DELAY 3000

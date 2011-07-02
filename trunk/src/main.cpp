@@ -31,6 +31,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include <cstdlib>
 #include <inttypes.h>
 #include <stdio.h>
+#include <signal.h>
 #include "CAVRprog.h"
 #include "CFormat.h"
 #include <iostream>
@@ -47,6 +48,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "COut.h"
 
 using namespace std;
+
+CAVRprog *prog = NULL;
 
 /**
  * @brief	Displays a usage message.
@@ -86,14 +89,26 @@ void usage() {
 	cout << "For more information type 'man " << PACKAGE_NAME << "'."					<< endl;
 }
 
+void closeProgrammer() {
+	if (prog != NULL) {
+		delete prog;
+	}
+}
+
+/*
+void catchSigInt(int num) {
+	closeProgrammer();
+	exit(1);
+}
+*/
+
 int main(int argc, char** argv) {
-	CAVRprog *prog = NULL;
 	uint8_t *buffer = NULL;
 	int size;
 	CHexFile *hexFile = NULL;
 	int returnValue = 0;
 	stringstream freqConversion;
-	int frequency = 8000000;
+	int frequency = FREQUENCY_AUTODETECT;
 
 	// actions
 	bool printHelp = false;
@@ -108,6 +123,8 @@ int main(int argc, char** argv) {
 	CFlashOptions *flashOptions = NULL;
 	CEEPROMOptions *eepromOptions = NULL;
 	CFusesOptions *fusesOptions = NULL;
+
+	//signal(SIGINT, catchSigInt);
 
 	int c;
 	int index = 0;
@@ -229,9 +246,8 @@ int main(int argc, char** argv) {
 			COut::d("");
 		}
 
-		prog = new CAVRprog(frequency);
-		prog->connect(mcu);
-		cout << "Connected to '" << prog->name() << "'." << endl;
+		prog = new CAVRprog();
+		prog->connect(mcu, frequency);
 
 		// this is only for output
 		if (fusesOptions == NULL && flashOptions == NULL && eepromOptions == NULL && chipErase == false) {
@@ -249,6 +265,11 @@ int main(int argc, char** argv) {
 			switch (fusesOptions->getOperation()) {
 			case WRITE:
 				cout << endl << "Write fuse bytes..." << endl;
+
+				// check weather device was specified
+				if (mcu.size() == 0) {
+					throw ProgramOptionsException("Writing fuses requires a specified mcu type.");
+				}
 #if WRITE_FUSES_SUPPORT
 				if (fusesOptions->getNumOfFuses() == 3) {
 					prog->writeFuses(fusesOptions->getLfuse(), fusesOptions->getHfuse(), fusesOptions->getEfuse());
@@ -435,9 +456,7 @@ int main(int argc, char** argv) {
 	}
 
 	// cleanup
-	if (prog != NULL) {
-		delete prog;
-	}
+	closeProgrammer();
 	if (flashOptions != NULL) {
 		delete flashOptions;
 	}

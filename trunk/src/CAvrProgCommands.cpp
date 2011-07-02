@@ -54,8 +54,7 @@ using namespace std;
  * The author does not exactly know the meaning/effect of all low level commands, hence some commands are not closer described.
  */
 
-//CAvrProgCommands::CAvrProgCommands(uint32_t _deviceSignature, socket_t _socket, int frequency) : deviceSignature(_deviceSignature), socket(_socket) {
-CAvrProgCommands::CAvrProgCommands(int frequency) {
+CAvrProgCommands::CAvrProgCommands() {
 	uint8_t *buffer;
 	uint8_t len;
 
@@ -64,8 +63,6 @@ CAvrProgCommands::CAvrProgCommands(int frequency) {
 
 	programmerInfo(INFO_VERSION, &buffer, &len);	// read device version
 	COut::d("Programmer Version: " + CFormat::hex(buffer, len));
-
-	setProgrammingSpeed(frequency);
 }
 
 // public function
@@ -88,7 +85,7 @@ void CAvrProgCommands::connect(socket_t socket) {
 
 	selectSocket(socket);
 	programmer(ACTIVATE);
-	checkDevice();				// in the original programmer checkDevice is called in front of each action
+	detectDevice(false);			// in the original programmer checkDevice is called in front of each action
 	// further it performs a chip erase and writes default fuses before any other action
 	// this all is omitted here
 }
@@ -97,7 +94,7 @@ void CAvrProgCommands::chipErase() {
 	// the commented functions are sent by the original programmer
 	//delayMs(0x14);
 
-	//checkDevice();
+	//detectDevice(false);
 
 	uint8_t command[] = {0x02, 0x04, 0x00, 0x00, 0x00, 0x00, 0x00};
 	uint8_t data[] = {	0xac, 0x80, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
@@ -132,7 +129,7 @@ void CAvrProgCommands::writeFlash(uint8_t *buffer, int size) {
 	// the commented functions are sent by the original programmer
 	//delayMs(0x14);
 
-	//checkDevice();
+	//detectDevice(false);
 
 	uint8_t lastPage[PAGE_SIZE];
 	int sizeOfLastPage;			// size of the last page without empty (0xff) bytes
@@ -168,7 +165,7 @@ void CAvrProgCommands::writeEEPROM(uint8_t *buffer, int size) {
 	// the commented functions are sent by the original programmer
 	//delayMs(0x14);
 
-	//checkDevice();
+	//detectDevice(false);
 
 	uint8_t lastSection[SECTION_SIZE];
 	int sizeOfLastSection;			// size of the last section without empty (0xff) bytes
@@ -306,23 +303,6 @@ uint8_t *CAvrProgCommands::readFuses(int size) {
 }
 
 // internal functions
-
-/*
- * checks if a device is present
- */
-void CAvrProgCommands::checkDevice() {
-	uint32_t deviceSignature;
-
-	detectDevice(false);		// check if a target device is present
-	//deviceSignature = getDeviceSignature();
-
-	//COut::d("Device Signature: 0x" + CFormat::intToHexString(deviceSignature));
-
-	// check device signature
-	//if (deviceSignature != this->deviceSignature) {
-	//	throw CommandException("Wrong device signature: expected 0x" + CFormat::intToHexString(this->deviceSignature) + " but found 0x" + CFormat::intToHexString(deviceSignature) + ".");
-	//}
-}
 
 /*
  * helper function to check if a page in the buffer is empty
@@ -509,6 +489,9 @@ void CAvrProgCommands::setProgrammingSpeed(int frequency) {
 
 	if (frequency < 1) {
 		frequency = 1;
+	}
+	if (frequency > 0xff) {
+		frequency = 0xff;
 	}
 
 	command[1] = frequency;
