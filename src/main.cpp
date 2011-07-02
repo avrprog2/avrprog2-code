@@ -31,7 +31,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include <cstdlib>
 #include <inttypes.h>
 #include <stdio.h>
-#include <signal.h>
+//#include <signal.h>
 #include "CAVRprog.h"
 #include "CFormat.h"
 #include <iostream>

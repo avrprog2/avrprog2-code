@@ -335,7 +335,6 @@ bool CAvrProgCommands::isEmptyPage(uint8_t *buffer) {
 void CAvrProgCommands::writeFlashPage(uint8_t *code, int page) {
 	uint8_t *buffer = NULL;
 	uint16_t checksum;
-	// todo: check command with different mcus
 	uint8_t command[] = {0x07, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x01, 0x05};
 	int len;
 

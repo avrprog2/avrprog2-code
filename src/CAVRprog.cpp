@@ -43,7 +43,7 @@ void CAVRprog::connect(string deviceFile, int frequency) {
 		setProgrammingSpeed(frequency);
 	}
 
-	if (deviceFile.size() == 0) {		// autodetect device
+	if (deviceFile.size() == 0) {				// autodetect device
 		CAvrProgCommands::connect(AUTO_DETECT);
 		cout << "Autodetect target device..." << endl;
 		uint32_t signature = getDeviceSignature();
@@ -91,11 +91,7 @@ void CAVRprog::connect(string deviceFile, int frequency) {
 		cout << "Set frequency to " << (double)(frequencies[f-1]/1000000.0) << "MHz." << endl;
 	}
 }
-/*
-string CAVRprog::name() {
-	return device->name();
-}
-*/
+
 void CAVRprog::writeFlash(uint8_t *buffer, int size) {
 	if (size > device->flashSize()) {
 		throw ProgrammerException("Not enough flash memory.");
