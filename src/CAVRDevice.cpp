@@ -47,8 +47,13 @@ CAVRDevice::CAVRDevice(uint32_t deviceSignature) {
 			directory_iterator endIter;
 			for (directory_iterator dirIter(CONFIG_DIR); dirIter != endIter; dirIter++) {
 				if (is_regular_file(dirIter->status())) {
+#if BOOST_FILESYSTEM_VERSION == 3
 					if (dirIter->path().extension().string().compare(".xml") == 0) {
 						deviceFile = dirIter->path().stem().string();
+#else
+					if (dirIter->path().extension().compare(".xml") == 0) {
+						deviceFile = dirIter->path().stem();
+#endif
 						if (hasDeviceSignature(deviceSignature, deviceFile) == true) {
 							found = true;
 							break;
@@ -64,8 +69,13 @@ CAVRDevice::CAVRDevice(uint32_t deviceSignature) {
 				directory_iterator endIter;
 				for (directory_iterator dirIter(homeConfigDir); dirIter != endIter; dirIter++) {
 					if (is_regular_file(dirIter->status())) {
+#if BOOST_FILESYSTEM_VERSION == 3
 						if (dirIter->path().extension().string().compare(".xml") == 0) {
 							deviceFile = dirIter->path().stem().string();
+#else
+						if (dirIter->path().extension().compare(".xml") == 0) {
+							deviceFile = dirIter->path().stem();
+#endif
 							if (hasDeviceSignature(deviceSignature, deviceFile) == true) {
 								found = true;
 								break;
@@ -146,8 +156,13 @@ void CAVRDevice::listDevices() {
 			directory_iterator endIter;
 			for (directory_iterator dirIter(CONFIG_DIR); dirIter != endIter; dirIter++) {
 				if (is_regular_file(dirIter->status())) {
+#if BOOST_FILESYSTEM_VERSION == 3
 					if (dirIter->path().extension().string().compare(".xml") == 0) {
 						cout << "\t" << dirIter->path().stem().string() << endl;
+#else
+					if (dirIter->path().extension().compare(".xml") == 0) {
+						cout << "\t" << dirIter->path().stem() << endl;
+#endif
 					}
 				}
 			}
@@ -160,8 +175,13 @@ void CAVRDevice::listDevices() {
 			directory_iterator endIter;
 			for (directory_iterator dirIter(homeConfigDir); dirIter != endIter; dirIter++) {
 				if (is_regular_file(dirIter->status())) {
+#if BOOST_FILESYSTEM_VERSION == 3
 					if (dirIter->path().extension().string().compare(".xml") == 0) {
 						cout << "\t" << dirIter->path().stem().string() << endl;
+#else
+					if (dirIter->path().extension().compare(".xml") == 0) {
+						cout << "\t" << dirIter->path().stem() << endl;
+#endif
 					}
 				}
 			}
