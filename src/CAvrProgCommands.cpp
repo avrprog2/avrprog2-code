@@ -785,7 +785,7 @@ uint8_t *CAvrProgCommands::readMemoryPage(int pageNumber, memory_t mem) {
 	uint8_t *command = NULL;
 	uint8_t commandFlash[] = {0x08, 0x00, 0x00, 0x00, 0x00, 0x01};
 	uint8_t commandEEPROM[] = {0x0a, 0x00, 0x00, 0x00, 0x01};
-	int commandSize;
+	int commandSize = 0;
 	int count;
 
 	switch (mem) {
