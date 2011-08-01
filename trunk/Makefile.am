@@ -54,11 +54,12 @@ dist_udevrules_DATA = 60-avrpog.rules
 # additional files
 dist_noinst_DATA = \
 	readme.txt \
+	doc.txt \
 	changelog.txt
 
 # build documentation and manpage
 
-doc: $(SOURCES)
+doc: $(SOURCES) doc.txt readme.txt man.txt
 	doxygen Doxyfile
 	
 man/man1/@PACKAGE@.1: man.txt
