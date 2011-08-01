@@ -70,6 +70,7 @@ void CAVRprog::connect(string deviceFile, int frequency) {
 	if (frequency < 0) {				// autodetect programming frequency
 		cout << "Autodetect programming frequency..." << endl;
 
+		// increase the frequency until an error occurs or the maximum is reached
 		for (f=0; f<sizeof(frequencies)/sizeof(int); f++) {
 			setProgrammingSpeed(frequencies[f]);
 
