@@ -2,7 +2,7 @@
 
 @page Documentation
 
-This documentation is mainly for programmers who want to extend the functionallity of \a avrprog2 or want to reuse code in their own projects.
+This documentation is mainly for programmers who want to extend the functionality of \a avrprog2 (http://sourceforge.net/projects/avrprog2) or want to reuse code in their own projects.
 
 \a avrprog2 is a linux frontend for the mikroElektronika (http://mikroe.com) AVRprog2 programming hardware.
 
@@ -54,10 +54,10 @@ The program does all its tasks in the following order.
   - List all supported devices.
   - Read input files.
  - Connect to the programming hardware.
- - If not specified on the commandline try use autodetect the following parameters.
-  - Autodetect programming pins.
-  - Autodetect device by the device signature.
-  - Autodetect device frequency.
+ - If not specified on the command line try use auto detect the following parameters.
+  - Auto detect programming pins.
+  - Auto detect device by the device signature.
+  - Auto detect device frequency.
  - Perform the actions according to the command line parameters in the following order.
   - Perform a chip erase.
   - Perform Fuses actions (write, read, verify).
@@ -65,27 +65,27 @@ The program does all its tasks in the following order.
   - Perform EEPROM memory actions (write, read, verify).
  - Close the connection to the programming hardware.
 
-@section autodetection Autodetection Mechanisms
+@section autodetection Auto detection Mechanisms
 
 This section describes the mode of operation of the implemented autodetection mechanisms.
 
 @subsection socket Programming Pins
 
-Some mcu cards for the Mikroelektronika development boards have more than one mcu socket. Hence it is necessary to specify the right one before one tries to communicate with the device.
+Some mcu cards for the mikroElektronika development boards have more than one mcu socket. Hence it is necessary to specify the right one before one tries to communicate with the device.
 
 The procedure to detect the right pins is quite simple. It selects the first socket, tries to detect a device and stops if a device answers. If not, the same procedure is done with the second socket.
 
 @subsection device Device
 
 If no device type is specified on the command line the programmer tries to identify the device itself. Todo so it reads the device signature and looks in the config directories for the according configuration file.
-To avoid uninteded damage of the target device, this feature is deactivated when fuse bytes are written.
+To avoid unintended damage of the target device, this feature is deactivated when fuse bytes are written.
 
 @subsection frequency Device frequency
 
 If no frequency is specified at the command line the programmer tries to detect the device frequency in the following way.
  - It sets the frequency to the lowest possible value (128kHz).
  - Then it reads the device signature.
- - Now the frequency is increased up to 10Mhz and after each step the device signature is read again. If it does not coinside with the first read signature, this frequency was too high and the programmer returns to the last working one.
+ - Now the frequency is increased up to 16Mhz and after each step the device signature is read again. If it does not coincide with the first read signature, this frequency was too high and the programmer returns to the last working one.
 
 @section configfiles Device Configuration Files
 
@@ -95,9 +95,9 @@ Device description files contain the following information about a AVR device.
 
  - name
  - device signature
- - size of flash memory
- - size of eeprom memory
- - number of fuse bytes
+ - size of Flash memory
+ - size of EEPROM memory
+ - number of Fuse bytes
  - package (used to select the programming pins, this is optional)
 
 This information is stored in *.xml files, which look like this one:
@@ -112,15 +112,15 @@ This information is stored in *.xml files, which look like this one:
 </device>
 @endcode
 
-If the \a package is not specified, avrprog tries to autodetect a device and to select the right programming pins.
+If the \a package is not specified, avrprog2 tries to auto detect a device and to select the right programming pins.
 
 @section files Binary Files
 
-Avrprog can read files in \a elf and \a ihex format. It determines the type by the file extension. Where *.elf files are opened as elf, whereas *.hex, *.ihex and *.eep files are treated as intel hex files.
+Avrprog2 can read files in \a elf and \a ihex format. It determines the type by the file extension. Where *.elf files are opened as elf, whereas *.hex, *.ihex and *.eep files are treated as intel hex files.
 
-In the following the behavior of the file parsers is described. It depends mainly on the type of memory (eeprom, flash or fuses) to which the file should be written.
+In the following the behavior of the file parsers is described. It depends mainly on the type of memory (EEPROM, Flash or Fuses) to which the file should be written.
 
-When reading content from memory to a file, this application writes allways files in ihex format.
+When reading content from memory to a file, this application writes always files in ihex format.
 
 @subsection ihex ihex Parser
 
@@ -128,24 +128,24 @@ When a hex file is read, all sections of the file are copied to the programming 
 
 @subsection elf elf Parser
 
-When a elf file is read it depends on the target memory which sections are copied to the internal buffer. If the target is flash memory, then the \a .text and \a .data sections are copied with consideration of the \a lma entries.
+When a elf file is read it depends on the target memory which sections are copied to the internal buffer. If the target is Flash memory, then the \a .text and \a .data sections are copied with consideration of the \a lma entries.
 
-If the target is eeprom memory, the \a .eeprom section is copied to the internal buffer without processing the \a lma entry. Hence the content will start at eemprom address 0x0000. This allows programming of elf files, without the need to invoke \a objcopy.
+If the target is EEPROM memory, the \a .eeprom section is copied to the internal buffer without processing the \a lma entry. Hence the content will start at EEPROM address 0x0000. This allows programming of elf files, without the need to invoke \a objcopy.
 
 When the target of the programming operation are fuse bytes, then the \a .fuse section of the elf file is read. Again the \a lma entry is ignored.
 
 @section libs Libraries
 
-The following libaries are used by this programmer.
+The following libraries are used by this programmer.
 
 - \a libbfd is used for reading and writing binary files.
 - \a libboostfilesystem is used to traverse the config directories.
-- \a libusb is used for usb communication. Here a version greater 1 is necessary since in older versions the isochrounous transfer mode is no implemented.
+- \a libusb is used for usb communication. Here a version greater 1 is necessary since in older versions the isochronous transfer mode is no implemented.
 - \a libboostpropertytree is used for reading the xml configuration files.
 
 @section docs Further Documentation
 
-More implementation details are documented directly in the source code. A class reference can be build with doxygen (Todo so use the \a doc make target.) The used low level commands for the communication with the programming hardware are documented in CAvrProgCommands.cpp.
+More implementation details are documented directly in the source code. A class reference can be build with Doxygen (Todo so use the \a doc make target.) The used low level commands for the communication with the programming hardware are documented in CAvrProgCommands.cpp.
 
 */
 
