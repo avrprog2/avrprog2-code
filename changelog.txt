@@ -2,6 +2,9 @@ Version 1.1.0
 	- added device autodetection support
 	- added programming frequency autodetection
 	- added support for low speed devices (>128kHz)
+	- support libusb version < 1.0.5 (no libusb_get_max_iso_packet_size())
+
+Version 1.0.1
 	- fixed crash when the configuration directory does not exist
 	
 Version 1.0.0
