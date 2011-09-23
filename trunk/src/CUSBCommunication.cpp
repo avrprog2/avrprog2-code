@@ -18,6 +18,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 
 #include "CUSBCommunication.h"
+#include <libusb-1.0/version.h>
 #include <iostream>
 #include <sstream>
 #include <stdio.h>
@@ -104,7 +105,11 @@ void CUSBCommunication::iso_transfer(int endpoint, uint8_t *buffer, int *len) {
 	int numOfPackets;
 	int err;
 
+#if (LIBUSB_MAJOR == 1) && (LIBUSB_MINOR == 0) && (LIBUSB_MICRO < 5)
+	numOfPackets = *len / libusb_get_max_packet_size(libusb_get_device(dev), endpoint);
+#else
 	numOfPackets = *len / libusb_get_max_iso_packet_size(libusb_get_device(dev), endpoint);
+#endif
 	if (numOfPackets == 0) {
 		numOfPackets = 1;
 	}
@@ -119,7 +124,11 @@ void CUSBCommunication::iso_transfer(int endpoint, uint8_t *buffer, int *len) {
 	transfer->flags = LIBUSB_TRANSFER_FREE_TRANSFER;
 
 	libusb_fill_iso_transfer(transfer, dev, endpoint, buffer, *len, numOfPackets, callback, this, USB_TIMEOUT);
-	libusb_set_iso_packet_lengths(transfer, libusb_get_max_iso_packet_size(libusb_get_device(dev), endpoint));
+#if (LIBUSB_MAJOR == 1) && (LIBUSB_MINOR == 0) && (LIBUSB_MICRO < 5)
+	libusb_set_iso_packet_lengths(transfer, libusb_get_max_packet_size(libusb_get_device(dev), endpoint));
+#else
+	libusb_set_iso_packet_lengths(transfer, libusb_get_max_iso_packet_size(libusb_get_device(dev), endpoint));	
+#endif
 
 	// start transfer
 	err = libusb_submit_transfer(transfer);
