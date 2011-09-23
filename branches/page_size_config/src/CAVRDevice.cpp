@@ -251,6 +251,13 @@ void CAVRDevice::openDevicefile(string deviceFile) {
 			throw DeviceException("Invalid flash size in device description file.");
 		}
 		COut::d("\tSize of flash memory: " + CFormat::intToString(_flashSize) + " bytes");
+		
+		// read flash page size
+		_flashPageSize = propetries.get<int>("device.flashPageSize");
+		if (_flashPageSize <= 0) {
+			throw DeviceException("Invalid flash page size in device description file.");
+		}
+		COut::d("\tSize of flash page: " + CFormat::intToString(_flashSize) + " bytes");
 
 		// read eeprom size
 		_eepromSize = propetries.get<int>("device.eepromSize");
@@ -258,6 +265,13 @@ void CAVRDevice::openDevicefile(string deviceFile) {
 			throw DeviceException("Invalid eeprom size in device description file.");
 		}
 		COut::d("\tSize of eeprom memory: " + CFormat::intToString(_eepromSize) + " bytes");
+
+		// read eeprom page size
+		_eepromPageSize = propetries.get<int>("device.eepromPageSize");
+		if (_eepromPageSize <= 0) {
+			throw DeviceException("Invalid eeprom page size in device description file.");
+		}
+		COut::d("\tSize of eeprom page: " + CFormat::intToString(_eepromSize) + " bytes");
 
 		// read number of fuse bytes
 		_fusesSize = propetries.get<int>("device.numOfFuses");
@@ -283,7 +297,16 @@ void CAVRDevice::openDevicefile(string deviceFile) {
 			_socket = TQFP100;
 		}
 		else {
-			_socket = AUTO_DETECT;
+			int s;
+			
+			s = CFormat::strinToInt(socket);
+			
+			if (s > 0 && s < 0xff) {	// valid byte value ?
+				_socket = s;
+			}
+			else {
+				_socket = AUTO_DETECT;
+			}
 		}
 
 		COut::d("\tSocket: " + socket);

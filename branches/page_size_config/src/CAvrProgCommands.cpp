@@ -65,7 +65,7 @@ CAvrProgCommands::CAvrProgCommands() {
 	COut::d("Programmer Version: " + CFormat::hex(buffer, len));
 }
 
-// public function
+// public functions
 
 void CAvrProgCommands::connect(socket_t socket) {
 	// the autodetection feature is not in the original programmer
@@ -125,28 +125,28 @@ void CAvrProgCommands::chipErase() {
  * Then each page is transferred with writeFlashPage()
  * A progressbar informs the user about the progress of this operation
  */
-void CAvrProgCommands::writeFlash(uint8_t *buffer, int size) {
+void CAvrProgCommands::writeFlash(uint8_t *buffer, int size, int pageSize) {
 	// the commented functions are sent by the original programmer
 	//delayMs(0x14);
 
 	//detectDevice(false);
 
-	uint8_t lastPage[PAGE_SIZE];
+	uint8_t lastPage[pageSize];
 	int sizeOfLastPage;			// size of the last page without empty (0xff) bytes
 	int page;
 	int numOfPages;				// without the last page
 
-	numOfPages = size / PAGE_SIZE;
-	sizeOfLastPage = size - PAGE_SIZE * numOfPages;
+	numOfPages = size / pageSize;
+	sizeOfLastPage = size - pageSize * numOfPages;
 
 	// copy the last page and fill it up with 0xff
-	memcpy(lastPage, buffer+PAGE_SIZE*numOfPages, sizeOfLastPage);
-	memset(lastPage+sizeOfLastPage, EMPTY_FLASH_BYTE, PAGE_SIZE-sizeOfLastPage);
+	memcpy(lastPage, buffer+pageSize*numOfPages, sizeOfLastPage);
+	memset(lastPage+sizeOfLastPage, EMPTY_FLASH_BYTE, pageSize-sizeOfLastPage);
 
 	CProgressbar progressbar(numOfPages+1);
 
 	for (page=0; page<numOfPages; page++) {
-		writeFlashPage(&(buffer[page*PAGE_SIZE]), page);
+		writeFlashPage(&(buffer[page*pageSize]), page);
 		progressbar.step();
 	}
 	writeFlashPage(lastPage, page);
@@ -161,31 +161,33 @@ void CAvrProgCommands::writeFlash(uint8_t *buffer, int size) {
  * Then each section is transferred with writeEEPROMSection()
  * A progressbar informs the user about the progress of this operation
  */
-void CAvrProgCommands::writeEEPROM(uint8_t *buffer, int size) {
+void CAvrProgCommands::writeEEPROM(uint8_t *buffer, int size, int pageSize) {
 	// the commented functions are sent by the original programmer
 	//delayMs(0x14);
 
 	//detectDevice(false);
+	
+	// todo: sections vs. page size ???
 
-	uint8_t lastSection[SECTION_SIZE];
+	uint8_t lastSection[pageSize];
 	int sizeOfLastSection;			// size of the last section without empty (0xff) bytes
 	int section;
 	int numOfSections;				// without the last section
 
-	numOfSections = size / SECTION_SIZE;
-	sizeOfLastSection = size - SECTION_SIZE * numOfSections;
+	numOfSections = size / pageSize;
+	sizeOfLastSection = size - pageSize * numOfSections;
 
 	// copy the last section and fill it up with 0xff
 	memcpy(lastSection, buffer+SECTION_SIZE*numOfSections, sizeOfLastSection);
-	memset(lastSection+sizeOfLastSection, EMPTY_EEPROM_BYTE, SECTION_SIZE-sizeOfLastSection);
+	memset(lastSection+sizeOfLastSection, EMPTY_EEPROM_BYTE, pageSize-sizeOfLastSection);
 
 	CProgressbar progressbar(numOfSections+1);
 
 	for (section=0; section<numOfSections; section++) {
-		writeEEPROMSection(&(buffer[section*SECTION_SIZE]), section*SECTION_SIZE);
+		writeEEPROMSection(&(buffer[section*pageSize]), section*pageSize);
 		progressbar.step();
 	}
-	writeEEPROMSection(lastSection, section*SECTION_SIZE);
+	writeEEPROMSection(lastSection, section*pageSize);
 	progressbar.step();
 
 	//delayMs(0x14);
@@ -222,7 +224,7 @@ void CAvrProgCommands::writeFuses(uint8_t lfuse, uint8_t hfuse, uint8_t efuse) {
 	executeCommands(command, 3, data);
 }
 
-uint8_t *CAvrProgCommands::readFlash(int size) {
+uint8_t *CAvrProgCommands::readFlash(int size, int pageSize) {
 	// the commented functions are sent by the original programmer
 	//delayMs(0x14);
 
@@ -232,7 +234,7 @@ uint8_t *CAvrProgCommands::readFlash(int size) {
 	//delayMs(0x14);
 }
 
-uint8_t *CAvrProgCommands::readEEPROM(int size) {
+uint8_t *CAvrProgCommands::readEEPROM(int size, int pageSize) {
 	// the commented functions are sent by the original programmer
 	//delayMs(0x14);
 
@@ -308,12 +310,12 @@ uint8_t *CAvrProgCommands::readFuses(int size) {
  * helper function to check if a page in the buffer is empty
  * It is not necessary to transfer empty pages. In some cases this speeds up the programming procedure.
  */
-bool CAvrProgCommands::isEmptyPage(uint8_t *buffer) {
+bool CAvrProgCommands::isEmptyPage(uint8_t *buffer, int pageSize) {
 	bool empty;
 
 	// check if page is empty
 	empty = true;
-	for (int i=0; i<PAGE_SIZE; i++) {
+	for (int i=0; i<pageSize; i++) {
 		if (buffer[i] != EMPTY_FLASH_BYTE) {
 			empty = false;
 			break;
@@ -332,7 +334,7 @@ bool CAvrProgCommands::isEmptyPage(uint8_t *buffer) {
  * - send a command which contains the page number and a checksum
  * - read the response
  */
-void CAvrProgCommands::writeFlashPage(uint8_t *code, int page) {
+void CAvrProgCommands::writeFlashPage(uint8_t *code, int page, int pageSize) {
 	uint8_t *buffer = NULL;
 	uint16_t checksum;
 	uint8_t command[] = {0x07, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x01, 0x05};
@@ -343,7 +345,7 @@ void CAvrProgCommands::writeFlashPage(uint8_t *code, int page) {
 		return;
 	}
 
-	checksum = this->checksum(code, PAGE_SIZE);
+	checksum = this->checksum(code, pageSize);
 
 	command[2] = (checksum>>8) & 0xff;	// assign checksum
 	command[1] = (checksum>>0) & 0xff;
@@ -357,7 +359,7 @@ void CAvrProgCommands::writeFlashPage(uint8_t *code, int page) {
 		command[3] = 1;
 	}
 
-	iso_write(3, code, PAGE_SIZE);
+	iso_write(3, code, pageSize);
 
 	// when sending page 512 switch addressing to extended
 	if (page == 512) {
@@ -385,25 +387,25 @@ void CAvrProgCommands::writeFlashPage(uint8_t *code, int page) {
  * The read procedure consists of many page reads, this reads are performed by readMemoryPage().
  * This functions further copies the single pages into one buffer and returns this buffer.
  */
-uint8_t *CAvrProgCommands::readMemory(int size, memory_t mem) {
+uint8_t *CAvrProgCommands::readMemory(int size, int pageSize, int pageSize, memory_t mem) {
 	uint8_t *pageBuffer;
 	int numOfPages;
 
 	// extend size to next full page
-	if ((size % PAGE_SIZE) != 0) {
-		size += PAGE_SIZE - (size % PAGE_SIZE);
+	if ((size % pageSize) != 0) {
+		size += pageSize - (size % pageSize);
 	}
 
 	uint8_t *buffer = new uint8_t[size];
 
-	numOfPages = size / PAGE_SIZE;
+	numOfPages = size / pageSize;
 
 	CProgressbar progressbar(numOfPages);
 
 	for (int page = 0; page < numOfPages; page++) {
 		pageBuffer = readMemoryPage(page, mem);
 
-		memcpy(buffer+page*PAGE_SIZE, pageBuffer, PAGE_SIZE);
+		memcpy(buffer+page*pageSize, pageBuffer, pageSize);
 		progressbar.step();
 	}
 
@@ -736,7 +738,7 @@ uint16_t CAvrProgCommands::checksum(uint8_t *buffer, int size) {
  * - read the response
  */
 void CAvrProgCommands::writeEEPROMSection(uint8_t *code, int offset) {
-	uint8_t section[PAGE_SIZE];
+	uint8_t section[pageSize];
 	uint8_t *buffer;
 	uint16_t checksum;
 	uint8_t command[] = {0x09, 0x00, 0x00, 0x00, 0x00, SECTION_SIZE, 0x00, 0x09};
@@ -745,7 +747,7 @@ void CAvrProgCommands::writeEEPROMSection(uint8_t *code, int offset) {
 	// copy section to buffer
 	memcpy(section, code, SECTION_SIZE);
 
-	checksum = this->checksum(section, PAGE_SIZE);
+	checksum = this->checksum(section, pageSize);
 
 	command[2] = (checksum>>8) & 0xff;		// assign checksum
 	command[1] = (checksum>>0) & 0xff;
@@ -753,7 +755,7 @@ void CAvrProgCommands::writeEEPROMSection(uint8_t *code, int offset) {
 	command[4] = (offset>>8) & 0xff;		// assign offset
 	command[3] = (offset>>0) & 0xff;
 
-	iso_write(3, section, PAGE_SIZE);
+	iso_write(3, section, pageSize);
 
 	int_write(2, command, sizeof(command));
 	len = 1;
@@ -819,7 +821,7 @@ uint8_t *CAvrProgCommands::readMemoryPage(int pageNumber, memory_t mem) {
 		iso_read(3, &buffer, &len);
 
 		// check data
-		if (len == PAGE_SIZE) {
+		if (len == pageSize) {
 			break;
 		}
 		count--;

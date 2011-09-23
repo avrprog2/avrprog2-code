@@ -122,6 +122,7 @@ void CAVRprog::writeFuses(uint8_t lfuse, uint8_t hfuse) {
 		throw ProgrammerException("Fuses Error.");
 	}
 
+	// todo: mcus with 2 fuses
 	throw ProgrammerException("MCUs with 2 fuse bytes are not supported.");
 }
 
@@ -135,7 +136,7 @@ void CAVRprog::writeFuses(uint8_t lfuse) {
 
 int CAVRprog::readFlash(uint8_t **buffer) {
 	int lastData = -1;
-	*buffer = CAvrProgCommands::readFlash(device->flashSize());
+	*buffer = CAvrProgCommands::readFlash(device->flashSize(), device->flashPageSize);
 
 	// cut off empty flash memory
 	for (int i=0; i<device->flashSize(); i++) {
@@ -149,7 +150,7 @@ int CAVRprog::readFlash(uint8_t **buffer) {
 
 int CAVRprog::readEEPROM(uint8_t **buffer) {
 	int lastData = -1;
-	*buffer = CAvrProgCommands::readEEPROM(device->eepromSize());
+	*buffer = CAvrProgCommands::readEEPROM(device->eepromSize(), device->eepromPageSize);
 
 	// cut off empty eeprom memory
 	for (int i=0; i<device->eepromSize(); i++) {
@@ -175,7 +176,7 @@ bool CAVRprog::verifyFlash(uint8_t *buffer, int size) {
 	}
 
 	uint8_t flashFile[device->flashSize()];
-	uint8_t *flashContent = CAvrProgCommands::readFlash(device->flashSize());
+	uint8_t *flashContent = CAvrProgCommands::readFlash(device->flashSize(), device->flashPageSize);
 
 	// extend buffer to flash size
 	memcpy(flashFile, buffer, size);
@@ -197,7 +198,7 @@ bool CAVRprog::fastVerifyFlash(uint8_t *buffer, int size) {
 		return false;
 	}
 
-	uint8_t *flashContent = CAvrProgCommands::readFlash(size);
+	uint8_t *flashContent = CAvrProgCommands::readFlash(size, device->flashPageSize);
 
 	if (memcmp(buffer, flashContent, size) != 0) {
 		equal = false;
@@ -216,7 +217,7 @@ bool CAVRprog::verifyEEPROM(uint8_t *buffer, int size) {
 	}
 
 	uint8_t eepromFile[device->eepromSize()];
-	uint8_t *eepromContent = CAvrProgCommands::readEEPROM(device->eepromSize());
+	uint8_t *eepromContent = CAvrProgCommands::readEEPROM(device->eepromSize(), device->eepromPageSize);
 
 	// extend buffer to flash size
 	memcpy(eepromFile, buffer, size);
@@ -238,7 +239,7 @@ bool CAVRprog::fastVerifyEEPROM(uint8_t *buffer, int size) {
 		return false;
 	}
 
-	uint8_t *eepromContent = CAvrProgCommands::readEEPROM(size);
+	uint8_t *eepromContent = CAvrProgCommands::readEEPROM(size, device->eepromPageSize);
 
 	if (memcmp(buffer, eepromContent, size) != 0) {
 		equal = false;
