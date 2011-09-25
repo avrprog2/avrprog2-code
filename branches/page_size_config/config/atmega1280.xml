@@ -2,7 +2,9 @@
 	<name>ATmega 1280</name>
 	<signature>0x1e9703</signature>
 	<flashSize>131072</flashSize>
+	<flashPageSize>256</flashPageSize>
 	<eepromSize>4096</eepromSize>
+	<eepromPageSize>8</eepromPageSize>
 	<numOfFuses>3</numOfFuses>
 <!--<socket>TQFP100</socket>	use autodetection -->
 </device>

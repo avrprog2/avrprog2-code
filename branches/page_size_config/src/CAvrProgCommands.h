@@ -137,7 +137,12 @@ public:
 private:
 //	static const int PAGE_SIZE = 256;		///< size of a flash memory page
 //	static const int SECTION_SIZE = 256/4;	///< size of a eeprom memory section (a section can be programmed with one USB transfer)
-
+	static const int USB_TRANSFER_SIZE			= 256;
+	static const int FLASH_READ_TRANSFER_SIZE	= 256;
+	static const int FLASH_WRITE_TRANSFER_SIZE	= 256;
+	static const int EEPROM_READ_TRANSFER_SIZE	= 256;
+	static const int EEPROM_WRITE_TRANSFER_SIZE	= 256;
+	
 	// constants
 	typedef enum {
 		ACTIVATE	= 0x01,
