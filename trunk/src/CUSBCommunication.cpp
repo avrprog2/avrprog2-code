@@ -18,7 +18,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 
 #include "CUSBCommunication.h"
-#include <libusb-1.0/version.h>
+//#include <libusb-1.0/version.h>
 #include <iostream>
 #include <sstream>
 #include <stdio.h>
