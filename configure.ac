@@ -26,6 +26,11 @@ fi
 
 # Checks for libraries and headers
 
+# libs required only on some systems (known from openSUSE)
+AC_SEARCH_LIBS([dlopen], [dl], [], [AC_MSG_ERROR([libdl was not found])])
+AC_CHECK_LIB([iberty], [main], [], [AC_MSG_ERROR([libiberty was not found])])
+AC_SEARCH_LIBS([zlibVersion], [z], [], [AC_MSG_ERROR([libz was not found])])
+
 # Need at least libusb-1.0
 AC_SEARCH_LIBS([libusb_init], [usb-1.0], [], [AC_MSG_ERROR([libusb-1.0 was not found])])
 AC_CHECK_HEADER([libusb-1.0/libusb.h], [], [AC_MSG_ERROR([libusb.h was not found])])
