@@ -67,18 +67,20 @@ CAvrProgCommands::CAvrProgCommands() {
 
 // public functions
 
-void CAvrProgCommands::connect(socket_t socket) {
+void CAvrProgCommands::connect(int socket) {
 	// the autodetection feature is not in the original programmer
 	if (socket == AUTO_DETECT) {
+		uint8_t s=0;
 		cout << "Autodetect programming pins..." << endl;
 		// try to find the right socket
-		if (trySocket(TQFP64) == true) {
-			socket = TQFP64;
+		for (s=0; s<AUTO_DETECT; s++) {
+			if (trySocket(s) == true) {
+				socket = s;
+				break;
+			}
 		}
-		else if (trySocket(TQFP100) == true) {
-			socket = TQFP100;
-		}
-		else {
+
+		if (s == AUTO_DETECT) {
 			throw CommandException("No device found during autodetection of programming pins.");
 		}
 	}
@@ -122,7 +124,7 @@ void CAvrProgCommands::chipErase() {
 /*
  * This method partitions the passed buffer into pages and fills the last page
  * with EMPTY_FLASH_BYTES.
- * Then each page is transferred with writeFlashPage()
+ * Then each page is transferred with writeFlashChunk()
  * A progressbar informs the user about the progress of this operation
  */
 void CAvrProgCommands::writeFlash(uint8_t *buffer, int size, int pageSize) {
@@ -131,25 +133,25 @@ void CAvrProgCommands::writeFlash(uint8_t *buffer, int size, int pageSize) {
 
 	//detectDevice(false);
 
-	uint8_t lastPage[pageSize];
-	int sizeOfLastPage;			// size of the last page without empty (0xff) bytes
-	int page;
-	int numOfPages;				// without the last page
+	uint8_t lastChunk[FLASH_WRITE_CHUNK_SIZE];
+	int sizeOfLastChunk;		// size of the last chunk without empty (0xff) bytes
+	int chunk;
+	int numOfChunks;				// without the last chunk
 
-	numOfPages = size / pageSize;
-	sizeOfLastPage = size - pageSize * numOfPages;
+	numOfChunks = size / FLASH_WRITE_CHUNK_SIZE;
+	sizeOfLastChunk = size - FLASH_WRITE_CHUNK_SIZE * numOfChunks;
 
 	// copy the last page and fill it up with 0xff
-	memcpy(lastPage, buffer+pageSize*numOfPages, sizeOfLastPage);
-	memset(lastPage+sizeOfLastPage, EMPTY_FLASH_BYTE, pageSize-sizeOfLastPage);
+	memcpy(lastChunk, buffer+FLASH_WRITE_CHUNK_SIZE*numOfChunks, sizeOfLastChunk);
+	memset(lastChunk+sizeOfLastChunk, EMPTY_FLASH_BYTE, FLASH_WRITE_CHUNK_SIZE-sizeOfLastChunk);
 
-	CProgressbar progressbar(numOfPages+1);
+	CProgressbar progressbar(numOfChunks+1);
 
-	for (page=0; page<numOfPages; page++) {
-		writeFlashPage(&(buffer[page*pageSize]), page);
+	for (chunk=0; chunk<numOfChunks; chunk++) {
+		writeFlashChunk(&(buffer[chunk*FLASH_WRITE_CHUNK_SIZE]), chunk, pageSize);
 		progressbar.step();
 	}
-	writeFlashPage(lastPage, page);
+	writeFlashChunk(lastChunk, chunk, FLASH_WRITE_CHUNK_SIZE);
 	progressbar.step();
 
 	//delayMs(0x14);
@@ -158,36 +160,34 @@ void CAvrProgCommands::writeFlash(uint8_t *buffer, int size, int pageSize) {
 /*
  * This method partitions the passed buffer into sections (128 bytes long) and fills the last section
  * with EMPTY_EEPROM_BYTES.
- * Then each section is transferred with writeEEPROMSection()
+ * Then each section is transferred with writeEEPROMChunk()
  * A progressbar informs the user about the progress of this operation
  */
-void CAvrProgCommands::writeEEPROM(uint8_t *buffer, int size, int pageSize) {
+void CAvrProgCommands::writeEEPROM(uint8_t *buffer, int size) {
 	// the commented functions are sent by the original programmer
 	//delayMs(0x14);
 
 	//detectDevice(false);
-	
-	// todo: sections vs. page size ???
 
-	uint8_t lastSection[pageSize];
-	int sizeOfLastSection;			// size of the last section without empty (0xff) bytes
-	int section;
-	int numOfSections;				// without the last section
+	uint8_t lastChunk[EEPROM_WRITE_CHUNK_SIZE];
+	int sizeOfLastChunk;			// size of the last section without empty (0xff) bytes
+	int chunk;
+	int numOfChunks;				// without the last section
 
-	numOfSections = size / pageSize;
-	sizeOfLastSection = size - pageSize * numOfSections;
+	numOfChunks = size / EEPROM_WRITE_CHUNK_SIZE;
+	sizeOfLastChunk = size - EEPROM_WRITE_CHUNK_SIZE * numOfChunks;
 
 	// copy the last section and fill it up with 0xff
-	memcpy(lastSection, buffer+SECTION_SIZE*numOfSections, sizeOfLastSection);
-	memset(lastSection+sizeOfLastSection, EMPTY_EEPROM_BYTE, pageSize-sizeOfLastSection);
+	memcpy(lastChunk, buffer+EEPROM_WRITE_CHUNK_SIZE*numOfChunks, sizeOfLastChunk);
+	memset(lastChunk+sizeOfLastChunk, EMPTY_EEPROM_BYTE, EEPROM_WRITE_CHUNK_SIZE-sizeOfLastChunk);
 
-	CProgressbar progressbar(numOfSections+1);
+	CProgressbar progressbar(numOfChunks+1);
 
-	for (section=0; section<numOfSections; section++) {
-		writeEEPROMSection(&(buffer[section*pageSize]), section*pageSize);
+	for (chunk=0; chunk<numOfChunks; chunk++) {
+		writeEEPROMChunk(&(buffer[chunk*EEPROM_WRITE_CHUNK_SIZE]), chunk*EEPROM_WRITE_CHUNK_SIZE);
 		progressbar.step();
 	}
-	writeEEPROMSection(lastSection, section*pageSize);
+	writeEEPROMChunk(lastChunk, chunk*EEPROM_WRITE_CHUNK_SIZE);
 	progressbar.step();
 
 	//delayMs(0x14);
@@ -227,7 +227,7 @@ void CAvrProgCommands::writeFuses(uint8_t lfuse, uint8_t hfuse, uint8_t efuse) {
 void CAvrProgCommands::writeFuses(uint8_t lfuse, uint8_t hfuse) {
 	// original AVRprog does an erase before writing fuses
 	// furthermore it writes default fuses, before programming the new ones
-	
+
 	// todo: richtiges command und daten einfügen
 
 	uint8_t command[] = {0x02, 0x04, 0x00, 0x00, 0x00, 0x09, 0x00};
@@ -256,7 +256,7 @@ void CAvrProgCommands::writeFuses(uint8_t lfuse, uint8_t hfuse) {
 	executeCommands(command, 3, data);
 }
 
-uint8_t *CAvrProgCommands::readFlash(int size, int pageSize) {
+uint8_t *CAvrProgCommands::readFlash(int size) {
 	// the commented functions are sent by the original programmer
 	//delayMs(0x14);
 
@@ -266,7 +266,7 @@ uint8_t *CAvrProgCommands::readFlash(int size, int pageSize) {
 	//delayMs(0x14);
 }
 
-uint8_t *CAvrProgCommands::readEEPROM(int size, int pageSize) {
+uint8_t *CAvrProgCommands::readEEPROM(int size) {
 	// the commented functions are sent by the original programmer
 	//delayMs(0x14);
 
@@ -366,35 +366,36 @@ bool CAvrProgCommands::isEmptyPage(uint8_t *buffer, int pageSize) {
  * - send a command which contains the page number and a checksum
  * - read the response
  */
-void CAvrProgCommands::writeFlashPage(uint8_t *code, int page, int pageSize) {
+void CAvrProgCommands::writeFlashChunk(uint8_t *code, int chunk, int pageSize) {
 	uint8_t *buffer = NULL;
 	uint16_t checksum;
-	uint8_t command[] = {0x07, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x01, 0x05};
+	uint8_t command[] = {0x07, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x05};
 	int len;
 
-
-	if (isEmptyPage(code) == true) {
+	if (isEmptyPage(code, FLASH_WRITE_CHUNK_SIZE) == true) {
 		return;
 	}
 
-	checksum = this->checksum(code, pageSize);
+	checksum = this->checksum(code, FLASH_WRITE_CHUNK_SIZE);
 
 	command[2] = (checksum>>8) & 0xff;	// assign checksum
 	command[1] = (checksum>>0) & 0xff;
 
-	command[5] = (page>>0) & 0xff;		// assign page number
-	command[6] = (page>>8) & 0xff;
-	command[7] = (page>>16) & 0xff;
+	command[5] = (chunk>>0) & 0xff;		// assign chunk number
+	command[6] = (chunk>>8) & 0xff;
+
+	command[7] = (pageSize>>0) & 0xff;	// assign chunk size
+	command[8] = (pageSize>>8) & 0xff;
 
 	// continue writing
-	if (page > 0) {
+	if (chunk > 0) {
 		command[3] = 1;
 	}
 
-	iso_write(3, code, pageSize);
+	iso_write(3, code, USB_TRANSFER_SIZE);
 
-	// when sending page 512 switch addressing to extended
-	if (page == 512) {
+	// when sending chunk 512 switch addressing to extended
+	if (chunk == 512) {
 		setExtendedAddress();
 	}
 
@@ -402,42 +403,42 @@ void CAvrProgCommands::writeFlashPage(uint8_t *code, int page, int pageSize) {
 	len = 1;
 	int_read(2, &buffer, &len);
 
-	COut::dd("Write flash page " + CFormat::intToString(page) + " returned " + CFormat::hex(buffer, len));
+	COut::dd("Write flash chunk " + CFormat::intToString(chunk) + " returned " + CFormat::hex(buffer, len));
 
 	// check return data
 	if (len != 1) {
-		throw CommandException("Error while writing page (" + CFormat::intToString(page) + ") to flash memory.");
+		throw CommandException("Error while writing chunk (" + CFormat::intToString(chunk) + ") to flash memory.");
 	}
 	else if (buffer[0] != 0x00) {
-		throw CommandException("Error while writing page (" + CFormat::intToString(page) + ") to flash memory.");
+		throw CommandException("Error while writing chunk (" + CFormat::intToString(chunk) + ") to flash memory.");
 	}
 }
 
 /*
  * This function reads 'size' bytes from 'mem'.
  *
- * The read procedure consists of many page reads, this reads are performed by readMemoryPage().
- * This functions further copies the single pages into one buffer and returns this buffer.
+ * The read procedure consists of many chunk reads, this reads are performed by readMemoryChunk().
+ * This functions further copies the single chunks into one buffer and returns this buffer.
  */
-uint8_t *CAvrProgCommands::readMemory(int size, int pageSize, int pageSize, memory_t mem) {
-	uint8_t *pageBuffer;
-	int numOfPages;
+uint8_t *CAvrProgCommands::readMemory(int size, memory_t mem) {
+	uint8_t *chunkBuffer;
+	int numOfChunks;
 
-	// extend size to next full page
-	if ((size % pageSize) != 0) {
-		size += pageSize - (size % pageSize);
+	// extend size to next full chunk
+	if ((size % MEMORY_READ_TRANSFER_SIZE) != 0) {
+		size += MEMORY_READ_TRANSFER_SIZE - (size % MEMORY_READ_TRANSFER_SIZE);
 	}
 
 	uint8_t *buffer = new uint8_t[size];
 
-	numOfPages = size / pageSize;
+	numOfChunks = size / MEMORY_READ_TRANSFER_SIZE;
 
-	CProgressbar progressbar(numOfPages);
+	CProgressbar progressbar(numOfChunks);
 
-	for (int page = 0; page < numOfPages; page++) {
-		pageBuffer = readMemoryPage(page, mem);
+	for (int chunk = 0; chunk < numOfChunks; chunk++) {
+		chunkBuffer = readMemoryChunk(chunk, mem);
 
-		memcpy(buffer+page*pageSize, pageBuffer, pageSize);
+		memcpy(buffer+chunk*MEMORY_READ_TRANSFER_SIZE, chunkBuffer, MEMORY_READ_TRANSFER_SIZE);
 		progressbar.step();
 	}
 
@@ -447,7 +448,7 @@ uint8_t *CAvrProgCommands::readMemory(int size, int pageSize, int pageSize, memo
 /*
  * search for a target mcu in socket
  */
-bool CAvrProgCommands::trySocket(socket_t socket) {
+bool CAvrProgCommands::trySocket(uint8_t socket) {
 	bool found;
 
 	selectSocket(socket);
@@ -460,7 +461,7 @@ bool CAvrProgCommands::trySocket(socket_t socket) {
 /*
  * With this info the programmer chip selects the correct programming pins.
  */
-void CAvrProgCommands::selectSocket(socket_t socket) {
+void CAvrProgCommands::selectSocket(uint8_t socket) {
 	uint8_t command[] = {0x04, 0x00};
 
 	command[1] = (uint8_t)socket;
@@ -618,7 +619,7 @@ void CAvrProgCommands::delayMs(uint8_t ms) {
 /*
  * setup and execute commands
  *
- * This is used for special command, which have not an own command number
+ * This is used for special commands, which do not have an own command number
  * on endpoint 2.
  * The command itself is sent as data to endpoint 3.
  *
@@ -735,16 +736,16 @@ bool CAvrProgCommands::detectDevice(bool reportError) {
 
 	len = 256;
 	iso_read(3, &buffer, &len);
-	COut::dd("Command 0301 read returned " + CFormat::hex(buffer, len));
+	COut::dd("Command 0301 (detect device) read returned " + CFormat::hex(buffer, len));
 
 	// check data
 	if (len != 2) {
 		if (reportError == true) return false;
-		throw CommandException("Error while executing Command 0301 read");
+		throw CommandException("Error while executing Command 0301 (detect device) read");
 	}
 	else if (buffer[0] != 0x53) {
 		if (reportError == true) return false;
-		throw CommandException("Error while executing Command 0301 read (No Device found!)");
+		throw CommandException("Error while executing Command 0301 (detect device) read (No Device found!)");
 	}
 
 	return true;
@@ -769,38 +770,38 @@ uint16_t CAvrProgCommands::checksum(uint8_t *buffer, int size) {
  * - send a command which contains the memory address of the section and a checksum
  * - read the response
  */
-void CAvrProgCommands::writeEEPROMSection(uint8_t *code, int offset, int pageSize) {
-	uint8_t section[pageSize];
+void CAvrProgCommands::writeEEPROMChunk(uint8_t *code, int address) {
+	uint8_t chunk[USB_TRANSFER_SIZE];
 	uint8_t *buffer;
 	uint16_t checksum;
-	uint8_t command[] = {0x09, 0x00, 0x00, 0x00, 0x00, SECTION_SIZE, 0x00, 0x09};
+	uint8_t command[] = {0x09, 0x00, 0x00, 0x00, 0x00, EEPROM_WRITE_CHUNK_SIZE, 0x00, 0x09};
 	int len;
 
 	// copy section to buffer
-	memcpy(section, code, SECTION_SIZE);
+	memcpy(chunk, code, EEPROM_WRITE_CHUNK_SIZE);
 
-	checksum = this->checksum(section, pageSize);
+	checksum = this->checksum(chunk, USB_TRANSFER_SIZE);
 
 	command[2] = (checksum>>8) & 0xff;		// assign checksum
 	command[1] = (checksum>>0) & 0xff;
 
-	command[4] = (offset>>8) & 0xff;		// assign offset
-	command[3] = (offset>>0) & 0xff;
+	command[4] = (address>>8) & 0xff;		// assign offset
+	command[3] = (address>>0) & 0xff;
 
-	iso_write(3, section, pageSize);
+	iso_write(3, chunk, USB_TRANSFER_SIZE);
 
 	int_write(2, command, sizeof(command));
 	len = 1;
 	int_read(2, &buffer, &len);
 
-	COut::dd("Write eeprom section returned " + CFormat::hex(buffer, len));
+	COut::dd("Write eeprom chunk returned " + CFormat::hex(buffer, len));
 
 	// check return data
 	if (len != 1) {
-		throw CommandException("Error while writing section to eeprom memory");
+		throw CommandException("Error while writing chunk to eeprom memory");
 	}
 	else if (buffer[0] != 0x00) {
-		throw CommandException("Error while writing section to eeprom memory");
+		throw CommandException("Error while writing chunk to eeprom memory");
 	}
 }
 
@@ -813,7 +814,7 @@ void CAvrProgCommands::writeEEPROMSection(uint8_t *code, int offset, int pageSiz
  *
  * Between two polling attempts the program sleeps for READ_PAGE_DELAY us
  */
-uint8_t *CAvrProgCommands::readMemoryPage(int pageNumber, memory_t mem) {
+uint8_t *CAvrProgCommands::readMemoryChunk(int chunkNumber, memory_t mem) {
 	int len;
 	uint8_t *buffer = NULL;
 	uint8_t *command = NULL;
@@ -826,20 +827,20 @@ uint8_t *CAvrProgCommands::readMemoryPage(int pageNumber, memory_t mem) {
 	case FLASH:
 		command = commandFlash;
 		commandSize = sizeof(commandFlash);
-		command[2] = (pageNumber >> 0) & 0xff;
-		command[3] = (pageNumber >> 8) & 0xff;
-		command[4] = (pageNumber >> 16) & 0xff;		// only guessed
+		command[2] = (chunkNumber >> 0) & 0xff;
+		command[3] = (chunkNumber >> 8) & 0xff;
+		command[4] = (chunkNumber >> 16) & 0xff;		// only guessed
 		break;
 	case EEPROM:
 		command = commandEEPROM;
 		commandSize = sizeof(commandEEPROM);
-		command[2] = (pageNumber >> 0) & 0xff;
-		command[3] = (pageNumber >> 8) & 0xff;
+		command[2] = (chunkNumber >> 0) & 0xff;
+		command[3] = (chunkNumber >> 8) & 0xff;
 		break;
 	}
 
 	// when reading page 512 issue setExtendedAddress
-	if (pageNumber == 512) {
+	if (chunkNumber == 512) {
 		setExtendedAddress();
 	}
 
@@ -853,23 +854,23 @@ uint8_t *CAvrProgCommands::readMemoryPage(int pageNumber, memory_t mem) {
 		iso_read(3, &buffer, &len);
 
 		// check data
-		if (len == pageSize) {
+		if (len == MEMORY_READ_TRANSFER_SIZE) {
 			break;
 		}
 		count--;
 	} while (count != 0);
 
 	if (count == 0) {
-		throw CommandException("Error while reading page " + CFormat::intToString(pageNumber));
+		throw CommandException("Error while reading chunk " + CFormat::intToString(chunkNumber));
 	}
 
 	// Debugging output
 	if (COut::isSet(2)) {
-		if (isEmptyPage(buffer)) {
-			COut::dd("Read page (" + CFormat::intToString(pageNumber) + ") returned (after " + CFormat::intToString(MAX_READ_CYCLES - count) + " tries): empty page");
+		if (isEmptyPage(buffer, MEMORY_READ_TRANSFER_SIZE)) {
+			COut::dd("Read chunk (" + CFormat::intToString(chunkNumber) + ") returned (after " + CFormat::intToString(MAX_READ_CYCLES - count) + " tries): empty chunk");
 		}
 		else {
-			COut::dd("Read page (" + CFormat::intToString(pageNumber) + ") returned (after " + CFormat::intToString(MAX_READ_CYCLES - count) + " tries) " + CFormat::hex(buffer, len));
+			COut::dd("Read chunk (" + CFormat::intToString(chunkNumber) + ") returned (after " + CFormat::intToString(MAX_READ_CYCLES - count) + " tries) " + CFormat::hex(buffer, len));
 		}
 	}
 

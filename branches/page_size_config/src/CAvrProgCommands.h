@@ -46,7 +46,7 @@ public:
 	 * Must be called before any operations on the target can be performed.
 	 * @param	socket		Socket of the expected device.
 	 */
-	void connect(socket_t socket);
+	void connect(int socket);
 
 	/**
 	 * @brief	Reads the device signature
@@ -88,7 +88,7 @@ public:
 	 * @param	buffer	Byte array with the content to write.
 	 * @param	size	Length of \a buffer.
 	 */
-	void writeEEPROM(uint8_t *buffer, int size, int pageSize);
+	void writeEEPROM(uint8_t *buffer, int size);
 
 	/**
 	 * @brief	Read the content of flash memory.
@@ -98,7 +98,7 @@ public:
 	 * @param	size	Number of bytes to read.
 	 * @return	Pointer to the first element of the buffer with the read content.
 	 */
-	uint8_t *readFlash(int size, int pageSize);
+	uint8_t *readFlash(int size);
 
 	/**
 	 * @brief	Read the content of eeprom memory.
@@ -108,7 +108,7 @@ public:
 	 * @param	size	Number of bytes to read.
 	 * @return	Pointer to the first element of the buffer with the read content.
 	 */
-	uint8_t *readEEPROM(int size, int pageSize);
+	uint8_t *readEEPROM(int size);
 
 	/**
 	 * @brief	Read the fuse bytes.
@@ -138,11 +138,10 @@ private:
 //	static const int PAGE_SIZE = 256;		///< size of a flash memory page
 //	static const int SECTION_SIZE = 256/4;	///< size of a eeprom memory section (a section can be programmed with one USB transfer)
 	static const int USB_TRANSFER_SIZE			= 256;
-	static const int FLASH_READ_TRANSFER_SIZE	= 256;
-	static const int FLASH_WRITE_TRANSFER_SIZE	= 256;
-	static const int EEPROM_READ_TRANSFER_SIZE	= 256;
-	static const int EEPROM_WRITE_TRANSFER_SIZE	= 256;
-	
+	static const int FLASH_WRITE_CHUNK_SIZE		= 256;
+	static const int EEPROM_WRITE_CHUNK_SIZE	= 64;
+	static const int MEMORY_READ_TRANSFER_SIZE	= 256;
+
 	// constants
 	typedef enum {
 		ACTIVATE	= 0x01,
@@ -162,19 +161,19 @@ private:
 	// private functions are documented in the *.cpp file
 	void checkDevice();
 	uint8_t *readMemory(int size, memory_t mem);
-	void selectSocket(socket_t socket);
+	void selectSocket(uint8_t socket);
 	void setExtendedAddress();
-	uint8_t *readMemoryPage(int pageNumber, int pageSize, memory_t mem);
+	uint8_t *readMemoryChunk(int chunkNumber, memory_t mem);
 	void programmerInfo(programmer_info_t info, uint8_t **retBuffer, uint8_t *retLen);
 	void programmer(programmer_action_t action);
 	void delayMs(uint8_t time);
 	bool detectDevice(bool reportError);
 	void executeCommands(uint8_t *setupCommand, uint8_t numOfCommands, uint8_t *data);
 	uint16_t checksum(uint8_t *buffer, int size);
-	void writeFlashPage(uint8_t *buffer, int page, int pageSize);
-	void writeEEPROMSection(uint8_t *buffer, int offset, int pageSize);
-	bool isEmptyPage(uint8_t *buffer);
-	bool trySocket(socket_t socket);
+	void writeFlashChunk(uint8_t *buffer, int page, int pageSize);
+	void writeEEPROMChunk(uint8_t *buffer, int address);
+	bool isEmptyPage(uint8_t *buffer, int pageSize);
+	bool trySocket(uint8_t socket);
 };
 
 /**

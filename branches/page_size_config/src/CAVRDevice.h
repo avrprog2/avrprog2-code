@@ -79,11 +79,6 @@ public:
 	 * @return	Size of eeprom memory.
 	 */
 	int eepromSize();
-	
-	/**
-	 * @return	PAge size of eeprom memory.
-	 */
-	int eepromPageSize();
 
 	/**
 	 * @return	Number of fuse bytes.
@@ -108,7 +103,7 @@ public:
 	/**
 	 * @return	Physical socket of the microcontroller device.
 	 */
-	socket_t socket();
+	int socket();
 
 	/**
 	 * @brief	Displays a list of all device description files in the CONFIG_DIR directory.
@@ -119,10 +114,9 @@ protected:
 	int _flashSize;
 	int _flashPageSize;
 	int _eepromSize;
-	int _eepromPageSize;
 	int _fusesSize;
 	uint32_t _deviceSignature;
-	socket_t _socket;
+	uint8_t _socket;
 	string _name;
 
 	/**

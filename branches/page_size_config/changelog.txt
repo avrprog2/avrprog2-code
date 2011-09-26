@@ -1,3 +1,7 @@
+Version 1.2.0
+	- extend socket autodetection (socket is now an uint8_t)
+	- support for ATmega16
+
 Version 1.1.0
 	- added device autodetection support
 	- added programming frequency autodetection

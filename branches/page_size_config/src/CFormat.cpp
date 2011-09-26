@@ -79,7 +79,7 @@ int CFormat::hexStringToInt(string val) {
 	return v;
 }
 
-int CFormat::hexStringToInt(string val) {
+int CFormat::stringToInt(string val) {
 	stringstream str;
 	int v;
 

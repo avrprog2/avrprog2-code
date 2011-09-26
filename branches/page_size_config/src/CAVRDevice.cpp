@@ -114,6 +114,10 @@ int CAVRDevice::flashSize() {
 	return _flashSize;
 }
 
+int CAVRDevice::flashPageSize() {
+	return _flashPageSize;
+}
+
 int CAVRDevice::eepromSize() {
 	return _eepromSize;
 }
@@ -130,7 +134,7 @@ uint32_t CAVRDevice::deviceSignature() {
 	return _deviceSignature;
 }
 
-socket_t CAVRDevice::socket() {
+int CAVRDevice::socket() {
 	return _socket;
 }
 
@@ -251,13 +255,13 @@ void CAVRDevice::openDevicefile(string deviceFile) {
 			throw DeviceException("Invalid flash size in device description file.");
 		}
 		COut::d("\tSize of flash memory: " + CFormat::intToString(_flashSize) + " bytes");
-		
+
 		// read flash page size
 		_flashPageSize = propetries.get<int>("device.flashPageSize");
 		if (_flashPageSize <= 0) {
 			throw DeviceException("Invalid flash page size in device description file.");
 		}
-		COut::d("\tSize of flash page: " + CFormat::intToString(_flashSize) + " bytes");
+		COut::d("\tSize of flash page: " + CFormat::intToString(_flashPageSize) + " bytes");
 
 		// read eeprom size
 		_eepromSize = propetries.get<int>("device.eepromSize");
@@ -265,13 +269,6 @@ void CAVRDevice::openDevicefile(string deviceFile) {
 			throw DeviceException("Invalid eeprom size in device description file.");
 		}
 		COut::d("\tSize of eeprom memory: " + CFormat::intToString(_eepromSize) + " bytes");
-
-		// read eeprom page size
-		_eepromPageSize = propetries.get<int>("device.eepromPageSize");
-		if (_eepromPageSize <= 0) {
-			throw DeviceException("Invalid eeprom page size in device description file.");
-		}
-		COut::d("\tSize of eeprom page: " + CFormat::intToString(_eepromSize) + " bytes");
 
 		// read number of fuse bytes
 		_fusesSize = propetries.get<int>("device.numOfFuses");
@@ -291,16 +288,19 @@ void CAVRDevice::openDevicefile(string deviceFile) {
 		// read socket
 		socket = propetries.get("device.socket", "auto");
 		if (socket.compare("TQFP64") == 0) {
-			_socket = TQFP64;
+			_socket = 2;
 		}
 		else if (socket.compare("TQFP100") == 0) {
-			_socket = TQFP100;
+			_socket = 1;
+		}
+		else if (socket.compare("DIP40B") == 0) {
+			_socket = 4;
 		}
 		else {
 			int s;
-			
-			s = CFormat::strinToInt(socket);
-			
+
+			s = CFormat::stringToInt(socket);
+
 			if (s > 0 && s < 0xff) {	// valid byte value ?
 				_socket = s;
 			}
