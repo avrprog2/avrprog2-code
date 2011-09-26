@@ -52,6 +52,10 @@ using namespace std;
  * - disable the programmer
  *
  * The author does not exactly know the meaning/effect of all low level commands, hence some commands are not closer described.
+ *
+ * definitions: chunk vs. page
+ * - The page size (of a memory) is a property of the target device.
+ * - A chunk contains on or more pages and is a unit which is sent to the programming hardware in one usb transfer
  */
 
 CAvrProgCommands::CAvrProgCommands() {
@@ -122,9 +126,9 @@ void CAvrProgCommands::chipErase() {
 }
 
 /*
- * This method partitions the passed buffer into pages and fills the last page
+ * This method partitions the passed buffer into chunks and fills the last chunk
  * with EMPTY_FLASH_BYTES.
- * Then each page is transferred with writeFlashChunk()
+ * Then each chunk is transferred with writeFlashChunk()
  * A progressbar informs the user about the progress of this operation
  */
 void CAvrProgCommands::writeFlash(uint8_t *buffer, int size, int pageSize) {
@@ -141,7 +145,7 @@ void CAvrProgCommands::writeFlash(uint8_t *buffer, int size, int pageSize) {
 	numOfChunks = size / FLASH_WRITE_CHUNK_SIZE;
 	sizeOfLastChunk = size - FLASH_WRITE_CHUNK_SIZE * numOfChunks;
 
-	// copy the last page and fill it up with 0xff
+	// copy the last chunk and fill it up with 0xff
 	memcpy(lastChunk, buffer+FLASH_WRITE_CHUNK_SIZE*numOfChunks, sizeOfLastChunk);
 	memset(lastChunk+sizeOfLastChunk, EMPTY_FLASH_BYTE, FLASH_WRITE_CHUNK_SIZE-sizeOfLastChunk);
 
@@ -158,9 +162,9 @@ void CAvrProgCommands::writeFlash(uint8_t *buffer, int size, int pageSize) {
 }
 
 /*
- * This method partitions the passed buffer into sections (128 bytes long) and fills the last section
+ * This method partitions the passed buffer into chunks (EEPROM_WRITE_CHUNK_SIZE bytes long) and fills the last chunk
  * with EMPTY_EEPROM_BYTES.
- * Then each section is transferred with writeEEPROMChunk()
+ * Then each chunk is transferred with writeEEPROMChunk()
  * A progressbar informs the user about the progress of this operation
  */
 void CAvrProgCommands::writeEEPROM(uint8_t *buffer, int size) {
@@ -170,14 +174,14 @@ void CAvrProgCommands::writeEEPROM(uint8_t *buffer, int size) {
 	//detectDevice(false);
 
 	uint8_t lastChunk[EEPROM_WRITE_CHUNK_SIZE];
-	int sizeOfLastChunk;			// size of the last section without empty (0xff) bytes
+	int sizeOfLastChunk;			// size of the last chunk without empty (0xff) bytes
 	int chunk;
-	int numOfChunks;				// without the last section
+	int numOfChunks;				// without the last chunk
 
 	numOfChunks = size / EEPROM_WRITE_CHUNK_SIZE;
 	sizeOfLastChunk = size - EEPROM_WRITE_CHUNK_SIZE * numOfChunks;
 
-	// copy the last section and fill it up with 0xff
+	// copy the last chunk and fill it up with 0xff
 	memcpy(lastChunk, buffer+EEPROM_WRITE_CHUNK_SIZE*numOfChunks, sizeOfLastChunk);
 	memset(lastChunk+sizeOfLastChunk, EMPTY_EEPROM_BYTE, EEPROM_WRITE_CHUNK_SIZE-sizeOfLastChunk);
 
@@ -303,15 +307,15 @@ uint8_t *CAvrProgCommands::readFuses(int size) {
 // internal functions
 
 /*
- * helper function to check if a page in the buffer is empty
- * It is not necessary to transfer empty pages. In some cases this speeds up the programming procedure.
+ * helper function to check if a chunk in the buffer is empty
+ * It is not necessary to transfer empty chunks. In some cases this speeds up the programming procedure.
  */
-bool CAvrProgCommands::isEmptyPage(uint8_t *buffer, int pageSize) {
+bool CAvrProgCommands::isEmptyChunk(uint8_t *buffer, int size) {
 	bool empty;
 
 	// check if page is empty
 	empty = true;
-	for (int i=0; i<pageSize; i++) {
+	for (int i=0; i<size; i++) {
 		if (buffer[i] != EMPTY_FLASH_BYTE) {
 			empty = false;
 			break;
@@ -322,12 +326,12 @@ bool CAvrProgCommands::isEmptyPage(uint8_t *buffer, int pageSize) {
 }
 
 /*
- * write a page to flash memory
- * this method takes the page content as array and the page number as integer
+ * write a chunk to flash memory
+ * this method takes the chunk content as array and the chunk number as integer
  *
- * A page usually consists of 256 bytes and is transfered in the following steps:
- * - send the page content
- * - send a command which contains the page number and a checksum
+ * A chunk usually consists of 256 bytes and is transfered in the following steps:
+ * - send the chunk content
+ * - send a command which contains the chunk number and a checksum
  * - read the response
  */
 void CAvrProgCommands::writeFlashChunk(uint8_t *code, int chunk, int pageSize) {
@@ -336,7 +340,7 @@ void CAvrProgCommands::writeFlashChunk(uint8_t *code, int chunk, int pageSize) {
 	uint8_t command[] = {0x07, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x05};
 	int len;
 
-	if (isEmptyPage(code, FLASH_WRITE_CHUNK_SIZE) == true) {
+	if (isEmptyChunk(code, FLASH_WRITE_CHUNK_SIZE) == true) {
 		return;
 	}
 
@@ -389,20 +393,20 @@ uint8_t *CAvrProgCommands::readMemory(int size, memory_t mem) {
 	int numOfChunks;
 
 	// extend size to next full chunk
-	if ((size % MEMORY_READ_TRANSFER_SIZE) != 0) {
-		size += MEMORY_READ_TRANSFER_SIZE - (size % MEMORY_READ_TRANSFER_SIZE);
+	if ((size % USB_TRANSFER_SIZE) != 0) {
+		size += USB_TRANSFER_SIZE - (size % USB_TRANSFER_SIZE);
 	}
 
 	uint8_t *buffer = new uint8_t[size];
 
-	numOfChunks = size / MEMORY_READ_TRANSFER_SIZE;
+	numOfChunks = size / USB_TRANSFER_SIZE;
 
 	CProgressbar progressbar(numOfChunks);
 
 	for (int chunk = 0; chunk < numOfChunks; chunk++) {
 		chunkBuffer = readMemoryChunk(chunk, mem);
 
-		memcpy(buffer+chunk*MEMORY_READ_TRANSFER_SIZE, chunkBuffer, MEMORY_READ_TRANSFER_SIZE);
+		memcpy(buffer+chunk*USB_TRANSFER_SIZE, chunkBuffer, USB_TRANSFER_SIZE);
 		progressbar.step();
 	}
 
@@ -729,9 +733,9 @@ uint16_t CAvrProgCommands::checksum(uint8_t *buffer, int size) {
 /*
  * low level functions to write eeprom memory
  *
- * A section usually consists of 128 bytes and is transfered in the following steps:
- * - send the section content (in this step 256 bytes are sent, where only the first 64 bytes (SECTION_SIZE) contain real data)
- * - send a command which contains the memory address of the section and a checksum
+ * A chunk usually consists of EEPROM_WRITE_CHUNK_SIZE bytes and is transfered in the following steps:
+ * - send the chunk content (in this step 256 bytes are sent, where only the first 64 bytes (EEPROM_WRITE_CHUNK_SIZE) contain real data)
+ * - send a command which contains the memory address of the chunk and a checksum
  * - read the response
  */
 void CAvrProgCommands::writeEEPROMChunk(uint8_t *code, int address) {
@@ -741,7 +745,7 @@ void CAvrProgCommands::writeEEPROMChunk(uint8_t *code, int address) {
 	uint8_t command[] = {0x09, 0x00, 0x00, 0x00, 0x00, EEPROM_WRITE_CHUNK_SIZE, 0x00, 0x09};
 	int len;
 
-	// copy section to buffer
+	// copy chunk to buffer (extends the chunk to USB_TRANSFER_SIZE)
 	memcpy(chunk, code, EEPROM_WRITE_CHUNK_SIZE);
 
 	checksum = this->checksum(chunk, USB_TRANSFER_SIZE);
@@ -770,11 +774,11 @@ void CAvrProgCommands::writeEEPROMChunk(uint8_t *code, int address) {
 }
 
 /*
- * Low level functions for reading a memory page
+ * Low level functions for reading a memory chunk
  *
- * A page (256 bytes long) is read in the following steps:
+ * A chunk (USB_TRANSFER_SIZE bytes long) is read in the following steps:
  * - send a command to the programmer (this is the only thing that differs between readings from flash and eeprom)
- * - Poll the response until the length of the response is 256 byte.
+ * - Poll the response until the length of the response is USB_TRANSFER_SIZE bytes.
  *
  * Between two polling attempts the program sleeps for READ_PAGE_DELAY us
  */
@@ -803,13 +807,13 @@ uint8_t *CAvrProgCommands::readMemoryChunk(int chunkNumber, memory_t mem) {
 		break;
 	}
 
-	// when reading page 512 issue setExtendedAddress
-	if (chunkNumber == 512) {
+	// when reading chunk 512 issue setExtendedAddress
+	if (chunkNumber == 512) {	// maybe this should be transformed to pages ???
 		setExtendedAddress();
 	}
 
 	int_write(2, command, commandSize);
-	//COut::dd("Command 0800 (read page)");
+	//COut::dd("Command 0800 (read chunk)");
 
 	count = MAX_READ_CYCLES;
 	do {
@@ -818,7 +822,7 @@ uint8_t *CAvrProgCommands::readMemoryChunk(int chunkNumber, memory_t mem) {
 		iso_read(3, &buffer, &len);
 
 		// check data
-		if (len == MEMORY_READ_TRANSFER_SIZE) {
+		if (len == USB_TRANSFER_SIZE) {
 			break;
 		}
 		count--;
@@ -830,7 +834,7 @@ uint8_t *CAvrProgCommands::readMemoryChunk(int chunkNumber, memory_t mem) {
 
 	// Debugging output
 	if (COut::isSet(2)) {
-		if (isEmptyPage(buffer, MEMORY_READ_TRANSFER_SIZE)) {
+		if (isEmptyChunk(buffer, USB_TRANSFER_SIZE)) {
 			COut::dd("Read chunk (" + CFormat::intToString(chunkNumber) + ") returned (after " + CFormat::intToString(MAX_READ_CYCLES - count) + " tries): empty chunk");
 		}
 		else {
