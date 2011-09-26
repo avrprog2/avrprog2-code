@@ -109,28 +109,12 @@ void CAVRprog::writeEEPROM(uint8_t *buffer, int size) {
 	CAvrProgCommands::writeEEPROM(buffer, size);
 }
 
-void CAVRprog::writeFuses(uint8_t lfuse, uint8_t hfuse, uint8_t efuse) {
-	if (3 != device->fusesSize()) {
+void CAVRprog::writeFuses(uint8_t lfuse, uint8_t hfuse, uint8_t efuse, int numOfFuses) {
+	if (numOfFuses != device->fusesSize()) {
 		throw ProgrammerException("Fuses Error.");
 	}
 
-	CAvrProgCommands::writeFuses(lfuse, hfuse, efuse);
-}
-
-void CAVRprog::writeFuses(uint8_t lfuse, uint8_t hfuse) {
-	if (2 != device->fusesSize()) {
-		throw ProgrammerException("Fuses Error.");
-	}
-
-	CAvrProgCommands::writeFuses(lfuse, hfuse);
-}
-
-void CAVRprog::writeFuses(uint8_t lfuse) {
-	if (1 != device->fusesSize()) {
-		throw ProgrammerException("Fuses Error.");
-	}
-
-	throw ProgrammerException("MCUs with 1 fuse byte are not supported.");
+	CAvrProgCommands::writeFuses(lfuse, hfuse, efuse, numOfFuses);
 }
 
 int CAVRprog::readFlash(uint8_t **buffer) {

@@ -72,16 +72,9 @@ public:
 	 * @param	lfuse	Low fuse byte.
 	 * @param	hfuse	High fuse byte.
 	 * @param	efuse	Extended fuse byte.
+	 * @param	numOfFuses	Number of fuses to write.
 	 */
-	void writeFuses(uint8_t lfuse, uint8_t hfuse, uint8_t efuse);
-
-	/**
-	 * @brief	Write fuse bytes.
-	 * @param	lfuse	Low fuse byte.
-	 * @param	hfuse	High fuse byte.
-	 */
-	void writeFuses(uint8_t lfuse, uint8_t hfuse);
-
+	void writeFuses(uint8_t lfuse, uint8_t hfuse, uint8_t efuse, int numOfFuses);
 
 	/**
 	 * @brief	Write to eeprom memory.

@@ -238,9 +238,9 @@ int main(int argc, char** argv) {
 		if (eeprom.size() != 0) {
 			COut::d("Prepare buffer for eeprom operations.");
 			eepromOptions = new CEEPROMOptions(eeprom);
-			if (eepromOptions->getOperation() == WRITE) {
-				chipErase = true;
-			}
+			//if (eepromOptions->getOperation() == WRITE) {
+			//	chipErase = true;
+			//}
 			COut::d("");
 		}
 		if (fuses.size() != 0) {
@@ -274,15 +274,7 @@ int main(int argc, char** argv) {
 					throw ProgramOptionsException("Writing fuses requires a specified mcu type.");
 				}
 #if WRITE_FUSES_SUPPORT
-				if (fusesOptions->getNumOfFuses() == 3) {
-					prog->writeFuses(fusesOptions->getLfuse(), fusesOptions->getHfuse(), fusesOptions->getEfuse());
-				}
-				else if (fusesOptions->getNumOfFuses() == 2) {
-					prog->writeFuses(fusesOptions->getLfuse(), fusesOptions->getHfuse());
-				}
-				else {
-					prog->writeFuses(fusesOptions->getLfuse());
-				}
+				prog->writeFuses(fusesOptions->getLfuse(), fusesOptions->getHfuse(), fusesOptions->getEfuse(), fusesOptions->getNumOfFuses());
 				cout << fusesOptions->getNumOfFuses() << " fuses byte written" << endl;
 
 				if (verify == true) {
@@ -315,7 +307,7 @@ int main(int argc, char** argv) {
 						cout << "\tefuse: " << "0x" << CFormat::intToHexString(buffer[2]) << endl;
 					break;
 				case ELF:
-					throw ProgramOptionsException("Reads fuse bytes into *.elf files is not supported.");
+					throw ProgramOptionsException("Read fuse bytes into *.elf files is not supported.");
 					break;
 				}
 				delete[] buffer;
