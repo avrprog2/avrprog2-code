@@ -66,6 +66,13 @@ public:
 	 * @return	Integer value of \a value.
 	 */
 	static int hexStringToInt(string value);
+	
+	/**
+	 * @brief	Converts a integer number presented as string to an integer value.
+	 * @param	value integer value.
+	 * @return	Integer value of \a value.
+	 */
+	static int stringToInt(string value);
 };
 
 #endif /* CFORMAT_H_ */

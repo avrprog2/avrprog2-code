@@ -75,21 +75,9 @@ public:
 	 * @param	lfuse	Low fuse byte.
 	 * @param	hfuse	High fuse byte.
 	 * @param	efuse	Extended fuse byte.
+	 * @param	numOfFuses	Number of fuse bytes to write.
 	 */
-	void writeFuses(uint8_t lfuse, uint8_t hfuse, uint8_t efuse);
-
-	/**
-	 * @brief	Writes fuses, for controllers with 2 fuse bytes.
-	 * @param	lfuse	Low fuse byte.
-	 * @param	hfuse	High fuse byte.
-	 */
-	void writeFuses(uint8_t lfuse, uint8_t hfuse);
-
-	/**
-	 * @brief	Writes fuses, for controllers with 1 fuse byte.
-	 * @param	lfuse	Low fuse byte.
-	 */
-	void writeFuses(uint8_t lfuse);
+	void writeFuses(uint8_t lfuse, uint8_t hfuse, uint8_t efuse, int numOfFuses);
 
 	/**
 	 * @brief	Reads the content of flash memory.

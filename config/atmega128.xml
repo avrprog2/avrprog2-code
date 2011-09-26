@@ -2,6 +2,7 @@
 	<name>ATmega 128</name>
 	<signature>0x1e9702</signature>
 	<flashSize>131072</flashSize>
+	<flashPageSize>256</flashPageSize>
 	<eepromSize>4096</eepromSize>
 	<numOfFuses>3</numOfFuses>
 <!--<socket>TQFP64</socket>	use autodetection-->

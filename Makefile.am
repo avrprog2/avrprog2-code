@@ -46,6 +46,7 @@ avrprog2_SOURCES = \
 dist_configfiles_DATA = \
 	config/atmega1280.xml \
 	config/atmega128.xml \
+	config/atmega16.xml \
 	config/atmega2560.xml
 
 udevrulesdir = /lib/udev/rules.d

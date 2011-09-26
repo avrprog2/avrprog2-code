@@ -78,3 +78,18 @@ int CFormat::hexStringToInt(string val) {
 
 	return v;
 }
+
+int CFormat::stringToInt(string val) {
+	stringstream str;
+	int v;
+
+	// hex ?
+	if (val.substr(0, 2).compare("0x") == 0) {
+		return hexStringToInt(val);
+	}
+
+	str << val;
+	str >> v;
+
+	return v;
+}

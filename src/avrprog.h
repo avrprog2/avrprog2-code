@@ -39,12 +39,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #define WRITE_FUSES_SUPPORT 1
 #endif
 
-/// Position of the mcu package on the mcu board
-typedef enum {
-	AUTO_DETECT = 0x00,
-	TQFP100	= 0x01,
-	TQFP64	= 0x02,
-} socket_t;
+#define AUTO_DETECT 0xff
 
 /// memory type
 typedef enum {
