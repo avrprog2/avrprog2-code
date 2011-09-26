@@ -37,12 +37,14 @@ using namespace std;
  *   <name>ATmega 128</name>
  *   <signature>0x1e9702</signature>
  *   <flashSize>4096</flashSize>
+ *   <flashPageSize>256</flashPageSize>
  *   <eepromSize>4096</eepromSize>
+ *   <eepromPageSize>8</eepromPageSize>
  *   <numOfFuses>3</numOfFuses>
  *   <socket>TQFP64</socket>
  * </device>
  * @endcode
- * Allowed sockets are TQFP64 and TQFP100. If another or no socket is given, autodetection gets enabled.
+ * Allowed sockets are TQFP64 and TQFP100 or any integer number. If another or no socket is given, autodetection gets enabled.
  *
  * @throw	DeviceException if an error occur.
  *
@@ -67,6 +69,11 @@ public:
 	 * @return	Size of flash memory.
 	 */
 	int flashSize();
+
+	/**
+	 * @return	Page size of flash memory.
+	 */
+	int flashPageSize();
 
 	/**
 	 * @return	Size of eeprom memory.
@@ -96,7 +103,7 @@ public:
 	/**
 	 * @return	Physical socket of the microcontroller device.
 	 */
-	socket_t socket();
+	int socket();
 
 	/**
 	 * @brief	Displays a list of all device description files in the CONFIG_DIR directory.
@@ -105,10 +112,11 @@ public:
 
 protected:
 	int _flashSize;
+	int _flashPageSize;
 	int _eepromSize;
 	int _fusesSize;
 	uint32_t _deviceSignature;
-	socket_t _socket;
+	uint8_t _socket;
 	string _name;
 
 	/**

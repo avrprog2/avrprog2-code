@@ -127,7 +127,7 @@ void CUSBCommunication::iso_transfer(int endpoint, uint8_t *buffer, int *len) {
 #if (LIBUSB_MAJOR == 1) && (LIBUSB_MINOR == 0) && (LIBUSB_MICRO < 5)
 	libusb_set_iso_packet_lengths(transfer, libusb_get_max_packet_size(libusb_get_device(dev), endpoint));
 #else
-	libusb_set_iso_packet_lengths(transfer, libusb_get_max_iso_packet_size(libusb_get_device(dev), endpoint));	
+	libusb_set_iso_packet_lengths(transfer, libusb_get_max_iso_packet_size(libusb_get_device(dev), endpoint));
 #endif
 
 	// start transfer

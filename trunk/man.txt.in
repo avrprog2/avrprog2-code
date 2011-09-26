@@ -30,6 +30,7 @@ A Linux tool for the MikroElektronika (www.mikroe.com) AVRprog2 programming hard
                           Specified a second time prints even more information.
   --frequency, -f <freq>  Device frequency in Hz. (If the value is smaller than
                           0x100, it is passed directly to the programmer.)
+                          If no frequency is given, autodetection gets enabled.
   --erase                 Perform a chip erase.
   --flash (r|w|v):<file>  Perform the given operation on flash memory.
                           r    Read memory and save it to file.
@@ -81,6 +82,7 @@ Device description files contain the following information about a AVR device.
 - name
 - device signature
 - size of flash memory
+- size of flash memory page
 - size of eeprom memory
 - number of fuse bytes
 - package (used to select the programming pins, this is optional)
@@ -93,6 +95,7 @@ This information is stored in *.xml files, which look like this one:
     <name>ATmega 128</name>
     <signature>0x1e9702</signature>
     <flashSize>4096</flashSize>
+    <flashPageSize>256</flashPageSize>
     <eepromSize>4096</eepromSize>
     <numOfFuses>3</numOfFuses>
     <package>TQFP64</package>
