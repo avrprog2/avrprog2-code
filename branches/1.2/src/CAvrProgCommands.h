@@ -128,12 +128,10 @@ public:
 
 
 private:
-//	static const int PAGE_SIZE = 256;		///< size of a flash memory page
-//	static const int SECTION_SIZE = 256/4;	///< size of a eeprom memory section (a section can be programmed with one USB transfer)
-	static const int USB_TRANSFER_SIZE			= 256;
-	static const int FLASH_WRITE_CHUNK_SIZE		= 256;
-	static const int EEPROM_WRITE_CHUNK_SIZE	= 64;
-	static const int MEMORY_READ_TRANSFER_SIZE	= 256;
+	// size definitions for memory operations
+	static const int USB_TRANSFER_SIZE			= 256;	// bytes written/read to/from the programmer in each iso transfer
+	static const int FLASH_WRITE_CHUNK_SIZE		= 256;	// bytes of real data when writing to flash
+	static const int EEPROM_WRITE_CHUNK_SIZE	= 64;	// bytes of real data when writing to eeprom
 
 	// constants
 	typedef enum {
@@ -165,7 +163,7 @@ private:
 	uint16_t checksum(uint8_t *buffer, int size);
 	void writeFlashChunk(uint8_t *buffer, int page, int pageSize);
 	void writeEEPROMChunk(uint8_t *buffer, int address);
-	bool isEmptyPage(uint8_t *buffer, int pageSize);
+	bool isEmptyChunk(uint8_t *buffer, int pageSize);
 	bool trySocket(uint8_t socket);
 };
 

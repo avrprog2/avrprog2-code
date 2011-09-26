@@ -111,7 +111,7 @@ void CAVRprog::writeEEPROM(uint8_t *buffer, int size) {
 
 void CAVRprog::writeFuses(uint8_t lfuse, uint8_t hfuse, uint8_t efuse, int numOfFuses) {
 	if (numOfFuses != device->fusesSize()) {
-		throw ProgrammerException("Fuses Error.");
+		throw ProgrammerException("Fuses Error. Expected " + CFormat::intToString(device->fusesSize()) + " fuse bytes.");
 	}
 
 	CAvrProgCommands::writeFuses(lfuse, hfuse, efuse, numOfFuses);

@@ -2,6 +2,7 @@ Version 1.2.0
 	- extend socket autodetection (socket is now an uint8_t)
 	- add support for ATmega16 (added flash page size to config files)
 	- removed automatic chip erase when EEPROM is written
+	- add libz, libiberty and libld to configure.ac
 
 Version 1.1.0
 	- added device autodetection support

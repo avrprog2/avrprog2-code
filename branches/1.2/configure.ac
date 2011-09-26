@@ -1,5 +1,5 @@
 AC_PREREQ([2.61])
-AC_INIT([avrprog2], [1.1.0], [ahagmann@ecs.tuwien.ac.at])
+AC_INIT([avrprog2], [1.2.0], [ahagmann@ecs.tuwien.ac.at])
 AC_CONFIG_AUX_DIR([build-aux])
 AM_INIT_AUTOMAKE(foreign [subdir-objects])
 
@@ -25,6 +25,11 @@ if test $DOT = no; then
 fi
 
 # Checks for libraries and headers
+
+# libs required only on some systems (known from openSUSE)
+AC_SEARCH_LIBS([dlopen], [dl], [], [AC_MSG_ERROR([libdl was not found])])
+AC_CHECK_LIB([iberty], [main], [], [AC_MSG_ERROR([libiberty was not found])])
+AC_SEARCH_LIBS([zlibVersion], [z], [], [AC_MSG_ERROR([libz was not found])])
 
 # Need at least libusb-1.0
 AC_SEARCH_LIBS([libusb_init], [usb-1.0], [], [AC_MSG_ERROR([libusb-1.0 was not found])])

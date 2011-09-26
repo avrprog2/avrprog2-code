@@ -78,6 +78,7 @@ void usage() {
 	cout << "                          Specified a second time prints even more information." << endl;
 	cout << "  --frequency, -f <freq>  Device frequency in Hz. (If the value is smaller than" << endl;
 	cout << "                          0x100, it is passed directly to the programmer.)"<< endl;
+	cout << "                          If no frequency is given, autodetection gets enabled." << endl;
 	cout << "  --erase                 Perform a chip erase."							<< endl;
 	cout << "  --flash (r|w|v):<file>  Perform the given operation on flash memory." 	<< endl;
 	cout << "                          r    Read memory and save it to file."			<< endl;
