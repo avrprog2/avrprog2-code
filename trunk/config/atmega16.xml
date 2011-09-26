@@ -5,5 +5,4 @@
 	<flashPageSize>128</flashPageSize>
 	<eepromSize>512</eepromSize>
 	<numOfFuses>2</numOfFuses>
-<!--<socket>TQFP100</socket>	use autodetection -->
 </device>
