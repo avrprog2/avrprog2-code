@@ -351,7 +351,7 @@ void CAvrProgCommands::writeFlashChunk(uint8_t *code, int chunk, int pageSize) {
 
 	command[5] = (chunk>>0) & 0xff;		// assign chunk number
 	command[6] = (chunk>>8) & 0xff;
-cout << "flashpage size: " << pageSize << endl;
+
 	command[7] = (pageSize>>0) & 0xff;	// assign chunk size
 	command[8] = (pageSize>>8) & 0xff;
 
