@@ -155,7 +155,7 @@ void CAvrProgCommands::writeFlash(uint8_t *buffer, int size, int pageSize) {
 		writeFlashChunk(&(buffer[chunk*FLASH_WRITE_CHUNK_SIZE]), chunk, pageSize);
 		progressbar.step();
 	}
-	writeFlashChunk(lastChunk, chunk, FLASH_WRITE_CHUNK_SIZE);
+	writeFlashChunk(lastChunk, chunk, pageSize);
 	progressbar.step();
 
 	//delayMs(0x14);
