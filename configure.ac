@@ -21,7 +21,7 @@ fi
 # dot is needed by doxygen
 AC_CHECK_PROG([DOT], [dot], [yes], [no])
 if test $DOT = no; then
-	AC_MSG_ERROR([dot (graphviz) was not found])
+	AC_MSG_WARN([dot (graphviz) was not found (documentation will not fully work)])
 fi
 
 # Checks for libraries and headers
