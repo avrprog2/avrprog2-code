@@ -1,0 +1,9 @@
+<device>
+	<name>ATmega 2560</name>
+	<signature>0x1e9801</signature>
+	<flashSize>262144</flashSize>
+	<flashPageSize>256</flashPageSize>
+	<eepromSize>4096</eepromSize>
+	<numOfFuses>3</numOfFuses>
+<!--<socket>auto</socket>	use autodetection -->
+</device>

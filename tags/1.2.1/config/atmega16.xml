@@ -1,0 +1,8 @@
+<device>
+	<name>ATmega 16</name>
+	<signature>0x1e9403</signature>
+	<flashSize>16384</flashSize>
+	<flashPageSize>128</flashPageSize>
+	<eepromSize>512</eepromSize>
+	<numOfFuses>2</numOfFuses>
+</device>
