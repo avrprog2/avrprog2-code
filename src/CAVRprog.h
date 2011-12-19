@@ -42,9 +42,9 @@ typedef enum {
 class CAVRprog : public CAvrProgCommands {
 public:
 	/**
-	 * @param	deviceFile	name of the target mcu
+	 * @param	device		see CUSBCommunication::CUSBCommunication
 	 */
-	CAVRprog();
+	CAVRprog(string device);
 	virtual ~CAVRprog();
 
 	/**
@@ -52,6 +52,7 @@ public:
 	*
 	* Must be called before any operations on the target can be performed.
 	*
+	* @param	deviceFile	name of the target mcu
 	* @param	frequency	device frequency in Hz
 	*/
 	void connect(string deviceFile, int frequency);

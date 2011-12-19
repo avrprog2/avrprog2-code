@@ -58,7 +58,7 @@ using namespace std;
  * - A chunk contains on or more pages and is a unit which is sent to the programming hardware in one usb transfer
  */
 
-CAvrProgCommands::CAvrProgCommands() {
+CAvrProgCommands::CAvrProgCommands(string device) : CUSBCommunication(device) {
 	uint8_t *buffer;
 	uint8_t len;
 

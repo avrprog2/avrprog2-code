@@ -24,6 +24,9 @@ A Linux tool for the MikroElektronika (www.mikroe.com) AVRprog2 programming hard
             <file>.xml    Specify the path to a device configuration file.
             list          Get a list of supported devices.
                           If no mcu type is given, autodetection gets enabled.
+  --usb, -u <bus:device>  Specify the USB bus and device id.
+			list          Get a list of available devices
+                          If bus and device id are not specified, the first discovered device is used.
   --help, -h              Display this usage message.
   --version               Print version informations.
   -d                      Print more information.

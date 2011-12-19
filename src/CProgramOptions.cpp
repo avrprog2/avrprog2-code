@@ -19,6 +19,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "CProgramOptions.h"
 #include <boost/algorithm/string.hpp>
+#include "CLArgumentException.h"
 
 CProgramOptions::CProgramOptions(string options) {
 	// parse options string
@@ -27,7 +28,7 @@ CProgramOptions::CProgramOptions(string options) {
 	// check delimiter
 	string delimiter = options.substr(1, 1);
 	if (delimiter.compare(":") != 0) {
-		throw ProgramOptionsException("Unknown option '" + options + "'");
+		throw CLArgumentException("Invalid option '" + options + "'");
 	}
 
 	// check memory operation
@@ -42,7 +43,7 @@ CProgramOptions::CProgramOptions(string options) {
 		this->operation = VERIFY;
 	}
 	else {
-		throw ProgramOptionsException("Unsupported memory operation '" + operation + "'");
+		throw CLArgumentException("Unsupported memory operation '" + operation + "'");
 	}
 
 	// check source (path or immediate value) and determine type
@@ -53,7 +54,7 @@ CProgramOptions::CProgramOptions(string options) {
 		type = IMMEDIATE;
 	}
 	else {
-		string fileExtension = this->source.substr(dot+1, 3);
+		string fileExtension = this->source.substr(dot+1, 4);
 		boost::to_lower(fileExtension);
 
 		if (fileExtension.compare("elf") == 0) {
