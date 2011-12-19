@@ -18,31 +18,97 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 
 #include "CUSBCommunication.h"
-//#include <libusb-1.0/version.h>
 #include <iostream>
 #include <sstream>
 #include <stdio.h>
 #include "CFormat.h"
 #include "COut.h"
+#include "CLArgumentException.h"
 
 using namespace std;
 
-CUSBCommunication::CUSBCommunication() {
+CUSBCommunication::CUSBCommunication(string device) {
 	int ret;
+	int numOfDevices;
+	libusb_device **deviceList;
+	int busNr = 0;
+	int deviceNr = 0;
 
-	COut::d("Connect to usb device...");
-	COut::dd("\tVendor ID: 0x" + CFormat::intToHexString(VENDOR_ID));
-	COut::dd("\tDevice ID: 0x" + CFormat::intToHexString(DEVICE_ID));
-	COut::dd("\tInterface: " + CFormat::intToHexString(INTERFACE));
-	COut::dd("");
+	// parse device string, should look like "bus:device"
+	if (device.length() != 0) {
+		unsigned int colon = device.rfind(':');
+		if (colon == device.npos) {
+			throw CLArgumentException("Invalid USB device option '" + device + "'");
+		}
+
+		busNr = CFormat::stringToInt(device.substr(0, colon));
+		deviceNr = CFormat::stringToInt(device.substr(colon+1, device.length()));
+
+		if (busNr == 0) {
+			cout << "WARNING: ignore USB bus number, since it is 0." << endl;
+		}
+		else {
+			cout << "Connect to usb device at Bus " << busNr << " Device " << deviceNr << "..." << endl;
+		}
+	}
+	else {
+		COut::d("Connect to usb device...");
+	}
+
+	COut::d("\tVendor ID: 0x" + CFormat::intToHexString(VENDOR_ID));
+	COut::d("\tDevice ID: 0x" + CFormat::intToHexString(DEVICE_ID));
+	COut::d("\tInterface: " + CFormat::intToHexString(INTERFACE));
+	COut::d("");
 
 	// init libusb
-	libusb_init(&context);
+	ret = libusb_init(&context);
+	if (ret != LIBUSB_SUCCESS) {
+		throw USBCommunicationException("Initializing libusb failed");
+	}
 
 	// search programmer device
-	dev = libusb_open_device_with_vid_pid(context, VENDOR_ID, DEVICE_ID);
+	numOfDevices = libusb_get_device_list(context, &deviceList);
+	if (numOfDevices == LIBUSB_ERROR_NO_MEM) {
+		throw USBCommunicationException("Memory allocation failure during device discovery");
+	}
+
+	// search in device list for a avrprog2 device
+	dev = NULL;
+	for (int i=0; i<numOfDevices; i++) {
+		libusb_device *device;
+		struct libusb_device_descriptor descriptor;
+
+		device = deviceList[i];
+		ret = libusb_get_device_descriptor(device, &descriptor);
+		if (ret != LIBUSB_SUCCESS) {
+			throw USBCommunicationException("Get device descriptor failure");
+		}
+
+		// check if the device is a avrprog2 device
+		if ((descriptor.idVendor == VENDOR_ID) && (descriptor.idProduct == DEVICE_ID))	{
+			COut::d("Found usb device at Bus " + CFormat::intToString(libusb_get_bus_number(device)) + " Device " + CFormat::intToString(libusb_get_device_address(device)));
+
+			// check if the device is connected to the specified bus and open the device
+			if ((busNr == 0) || ((busNr == libusb_get_bus_number(device)) && (deviceNr == libusb_get_device_address(device)))) {
+				ret = libusb_open(device, &dev);
+				if (ret == LIBUSB_ERROR_ACCESS) {
+					throw USBCommunicationException("Insufficient permissions to access usb device");
+				}
+				else if (ret != LIBUSB_SUCCESS) {
+					throw USBCommunicationException("Open usb device failed");
+				}
+
+				COut::d("Connected to usb device at Bus " + CFormat::intToString(libusb_get_bus_number(device)) + " Device " + CFormat::intToString(libusb_get_device_address(device)));
+
+				break;
+			}
+		}
+	}
+
+	libusb_free_device_list(deviceList, 1);
+	
 	if (dev == NULL) {
-		throw USBCommunicationException("Device not found");
+		throw USBCommunicationException("No device found");
 	}
 
 	// configure the device
@@ -56,6 +122,44 @@ CUSBCommunication::CUSBCommunication() {
 	if (ret != LIBUSB_SUCCESS) {
 		throw USBCommunicationException("Claiming Interface failed");
 	}
+}
+
+void CUSBCommunication::print_device_list() {
+	int ret;
+	int numOfDevices;
+	libusb_device **deviceList;
+	libusb_context *c;
+
+	cout << "List of available devices:" << endl;
+
+	ret = libusb_init(&c);
+	if (ret != LIBUSB_SUCCESS) {
+		throw USBCommunicationException("Initializing libusb failed");
+	}
+
+	numOfDevices = libusb_get_device_list(c, &deviceList);
+	if (numOfDevices == LIBUSB_ERROR_NO_MEM) {
+		throw USBCommunicationException("Memory allocation failure during device discovery");
+	}
+	
+	for (int i=0; i<numOfDevices; i++) {
+		libusb_device *device;
+		struct libusb_device_descriptor descriptor;
+		
+		device = deviceList[i];
+		ret = libusb_get_device_descriptor(device, &descriptor);
+		if (ret != LIBUSB_SUCCESS) {
+			throw USBCommunicationException("Get device descriptor failure");
+		}
+		
+		// check if the device is a avrprog2 device
+		if ((descriptor.idVendor == VENDOR_ID) && (descriptor.idProduct == DEVICE_ID))	{
+			cout << "\tBus " << (int)libusb_get_bus_number(device) << " Device " << (int)libusb_get_device_address(device) << endl;
+		}
+	}
+	
+	libusb_free_device_list(deviceList, 1);
+	libusb_exit(c);
 }
 
 void CUSBCommunication::int_read(int endpoint, uint8_t **buffer, int *len) {
@@ -105,11 +209,7 @@ void CUSBCommunication::iso_transfer(int endpoint, uint8_t *buffer, int *len) {
 	int numOfPackets;
 	int err;
 
-#if (LIBUSB_MAJOR == 1) && (LIBUSB_MINOR == 0) && (LIBUSB_MICRO < 5)
 	numOfPackets = *len / libusb_get_max_packet_size(libusb_get_device(dev), endpoint);
-#else
-	numOfPackets = *len / libusb_get_max_iso_packet_size(libusb_get_device(dev), endpoint);
-#endif
 	if (numOfPackets == 0) {
 		numOfPackets = 1;
 	}
@@ -124,11 +224,7 @@ void CUSBCommunication::iso_transfer(int endpoint, uint8_t *buffer, int *len) {
 	transfer->flags = LIBUSB_TRANSFER_FREE_TRANSFER;
 
 	libusb_fill_iso_transfer(transfer, dev, endpoint, buffer, *len, numOfPackets, callback, this, USB_TIMEOUT);
-#if (LIBUSB_MAJOR == 1) && (LIBUSB_MINOR == 0) && (LIBUSB_MICRO < 5)
 	libusb_set_iso_packet_lengths(transfer, libusb_get_max_packet_size(libusb_get_device(dev), endpoint));
-#else
-	libusb_set_iso_packet_lengths(transfer, libusb_get_max_iso_packet_size(libusb_get_device(dev), endpoint));
-#endif
 
 	// start transfer
 	err = libusb_submit_transfer(transfer);

@@ -72,6 +72,10 @@ void usage() {
 	cout << "            <file>.xml    Specify the path to a device configuration file."<< endl;
 	cout << "            list          Get a list of supported devices." 				<< endl;
 	cout << "                          If no mcu type is given, autodetection gets enabled." << endl;
+	cout << "  --usb, -u <bus:device>  Specify the USB bus and device id."				<< endl;
+	cout << "            list          Get a list of available devices"					<< endl;
+	cout << "                          If bus and device id are not specified, the first " << endl;
+	cout << "                          discovered device is used."						<< endl;
 	cout << "  --help, -h              Display this usage message." 					<< endl;
 	cout << "  --version               Print version informations." 					<< endl;
 	cout << "  -d                      Print more information."							<< endl;
@@ -124,6 +128,7 @@ int main(int argc, char** argv) {
 	string eeprom = "";
 	string fuses = "";
 	string mcu = "";
+	string usbDevice = "";
 	CFlashOptions *flashOptions = NULL;
 	CEEPROMOptions *eepromOptions = NULL;
 	CFusesOptions *fusesOptions = NULL;
@@ -137,6 +142,7 @@ int main(int argc, char** argv) {
 			{"version",		no_argument,		NULL, 'V'},
 			{"debug",		no_argument,		NULL, 'd'},
 			{"mcu",			required_argument,	NULL, 'm'},
+			{"usb",			required_argument,	NULL, 'u'},
 			{"verify",		no_argument,		NULL, 'v'},
 			{"frequency",	required_argument,	NULL, 'f'},
 			{"erase",		no_argument,		NULL, 'E'},
@@ -148,7 +154,7 @@ int main(int argc, char** argv) {
 
 	try {
 		// parse command line arguments
-		while ((c = getopt_long(argc, argv, "hdvf:m:", options, &index)) != EOF) {
+		while ((c = getopt_long(argc, argv, "hdvf:m:u:", options, &index)) != EOF) {
 			switch(c) {
 			case 'h':
 				printHelp = true;
@@ -163,6 +169,11 @@ int main(int argc, char** argv) {
 				if (mcu.size() != 0) throw CLArgumentException("mcu was already specified.");
 				if (optarg[0] == '-') throw CLArgumentException("mcu requires an argument.");
 				mcu = optarg;
+				break;
+			case 'u':
+				if (usbDevice.size() != 0) throw CLArgumentException("usb was already specified.");
+				if (optarg[0] == '-') throw CLArgumentException("usb requires an argument.");
+				usbDevice = optarg;
 				break;
 			case 'v':
 				verify = true;
@@ -228,6 +239,11 @@ int main(int argc, char** argv) {
 			return returnValue;
 		}
 
+		if (usbDevice.compare("list") == 0) {
+			CUSBCommunication::print_device_list();
+			return returnValue;
+		}
+
 		if (flash.size() != 0) {
 			COut::d("Prepare buffer for flash operations.");
 			flashOptions = new CFlashOptions(flash);
@@ -250,7 +266,7 @@ int main(int argc, char** argv) {
 			COut::d("");
 		}
 
-		prog = new CAVRprog();
+		prog = new CAVRprog(usbDevice);
 		prog->connect(mcu, frequency);
 
 		// this is only for output

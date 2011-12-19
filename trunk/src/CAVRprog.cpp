@@ -27,7 +27,7 @@ using namespace std;
 
 const int frequencies[] = {128000, 1000000, 4000000, 8000000, 16000000};	///< frequencies for speed autodetection
 
-CAVRprog::CAVRprog() : CAvrProgCommands(), device(NULL) {
+CAVRprog::CAVRprog(string device) : CAvrProgCommands(device), device(NULL) {
 
 }
 
@@ -52,8 +52,6 @@ void CAVRprog::connect(string deviceFile, int frequency) {
 	else {
 		device = new CAVRDevice(deviceFile);
 		CAvrProgCommands::connect(device->socket());
-
-
 	}
 
 	deviceSignature = getDeviceSignature();

@@ -37,11 +37,20 @@ public:
 	 * @brief	Initialize libusb
 	 *
 	 * Open a connection to the programmer hardware. Identifies the programmer by
-	 * VENDOR_ID and DEVICE_ID.
+	 * VENDOR_ID and DEVICE_ID and optionally by it the USB bus and device id.
+	 *
+	 * @param	device		USB bus and device id of the programmer hardware in the format "bus:device".
+	 * 						If this parameter is the empty string, the bus and device number
+	 * 						are ignored, and the first appropriate hardware in the device list is used.
 	 */
-	CUSBCommunication();
+	CUSBCommunication(string device);
 	virtual ~CUSBCommunication();
 	static const int BUFFER_LEN = 256;	///< Size of the internal buffer. This is also the limit of bytes that can be read with one transfer.
+
+	/**
+	 * @brief	Print a list of available avrprog2 devices
+	 */
+	static void print_device_list();
 
 	/**
 	 * @brief	Isochronous read transfer.

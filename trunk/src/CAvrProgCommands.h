@@ -36,8 +36,10 @@ class CAvrProgCommands: public CUSBCommunication {
 public:
 	/**
 	 * @brief	Start a session with the hardware programmer.
+	 *
+	 * @param	device		see CUSBCommunication::CUSBCommunication
 	 */
-	CAvrProgCommands();
+	CAvrProgCommands(string device);
 	virtual ~CAvrProgCommands();
 
 	/**
