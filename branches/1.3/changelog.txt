@@ -1,0 +1,25 @@
+Version 1.3.0
+	- fixed support for *.ihex files
+	- print usage message when invalid memory operations are given
+	- add support for multiple avrprog2 devices (new parameter --usb)
+
+Version 1.2.1
+	- fixed: writing of programms that fit into one flash chunk
+
+Version 1.2.0
+	- extend socket autodetection (socket is now an uint8_t)
+	- add support for ATmega16 (added flash page size to config files)
+	- removed automatic chip erase when EEPROM is written
+	- add libz, libiberty and libld to configure.ac
+
+Version 1.1.0
+	- added device autodetection support
+	- added programming frequency autodetection
+	- added support for low speed devices (>128kHz)
+	- support libusb version < 1.0.5 (no libusb_get_max_iso_packet_size())
+
+Version 1.0.1
+	- fixed crash when the configuration directory does not exist
+	
+Version 1.0.0
+	- initial release
