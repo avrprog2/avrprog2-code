@@ -37,15 +37,21 @@ CUSBCommunication::CUSBCommunication(string device) {
 	// parse device string, should look like "bus:device"
 	if (device.length() != 0) {
 		unsigned int colon = device.rfind(':');
-		if (colon == device.npos) {
-			throw CLArgumentException("Invalid USB device option '" + device + "'");
+		if (colon != device.npos) {
+			deviceNr = CFormat::stringToInt(device.substr(colon+1, device.length()));
+
+			if (deviceNr == 0) {
+				cout << "WARNING: ignore USB device number, since it is 0." << endl;
+			}
 		}
 
 		busNr = CFormat::stringToInt(device.substr(0, colon));
-		deviceNr = CFormat::stringToInt(device.substr(colon+1, device.length()));
 
 		if (busNr == 0) {
 			cout << "WARNING: ignore USB bus number, since it is 0." << endl;
+		}
+		else if (deviceNr == 0) {
+			cout << "Connect to usb device at Bus " << busNr << "..." << endl;
 		}
 		else {
 			cout << "Connect to usb device at Bus " << busNr << " Device " << deviceNr << "..." << endl;
@@ -89,18 +95,20 @@ CUSBCommunication::CUSBCommunication(string device) {
 			COut::d("Found usb device at Bus " + CFormat::intToString(libusb_get_bus_number(device)) + " Device " + CFormat::intToString(libusb_get_device_address(device)));
 
 			// check if the device is connected to the specified bus and open the device
-			if ((busNr == 0) || ((busNr == libusb_get_bus_number(device)) && (deviceNr == libusb_get_device_address(device)))) {
-				ret = libusb_open(device, &dev);
-				if (ret == LIBUSB_ERROR_ACCESS) {
-					throw USBCommunicationException("Insufficient permissions to access usb device");
-				}
-				else if (ret != LIBUSB_SUCCESS) {
-					throw USBCommunicationException("Open usb device failed");
-				}
+			if ((busNr == 0) || (busNr == libusb_get_bus_number(device))) {
+				if ((deviceNr == 0) || (deviceNr == libusb_get_device_address(device))) {
+					ret = libusb_open(device, &dev);
+					if (ret == LIBUSB_ERROR_ACCESS) {
+						throw USBCommunicationException("Insufficient permissions to access usb device");
+					}
+					else if (ret != LIBUSB_SUCCESS) {
+						throw USBCommunicationException("Open usb device failed");
+					}
 
-				COut::d("Connected to usb device at Bus " + CFormat::intToString(libusb_get_bus_number(device)) + " Device " + CFormat::intToString(libusb_get_device_address(device)));
+					COut::d("Connected to usb device at Bus " + CFormat::intToString(libusb_get_bus_number(device)) + " Device " + CFormat::intToString(libusb_get_device_address(device)));
 
-				break;
+					break;
+				}
 			}
 		}
 	}
@@ -108,7 +116,7 @@ CUSBCommunication::CUSBCommunication(string device) {
 	libusb_free_device_list(deviceList, 1);
 	
 	if (dev == NULL) {
-		throw USBCommunicationException("No device found");
+		throw USBCommunicationException("Device not found");
 	}
 
 	// configure the device
@@ -154,7 +162,7 @@ void CUSBCommunication::print_device_list() {
 		
 		// check if the device is a avrprog2 device
 		if ((descriptor.idVendor == VENDOR_ID) && (descriptor.idProduct == DEVICE_ID))	{
-			cout << "\tBus " << (int)libusb_get_bus_number(device) << " Device " << (int)libusb_get_device_address(device) << endl;
+			cout << "\tBus " << (int)libusb_get_bus_number(device) << " Device " << (int)libusb_get_device_address(device) << " (" << (int)libusb_get_bus_number(device) << ":" << (int)libusb_get_device_address(device) << ")" << endl;
 		}
 	}
 	

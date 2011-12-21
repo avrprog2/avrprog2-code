@@ -8,6 +8,7 @@ A Linux tool for the MikroElektronika (www.mikroe.com) AVRprog2 programming hard
 
 @code
 @PACKAGE@ [(--mcu | -m) (<mcutype> | <file>.xml | list)]
+	[(--usb | -u) (<busid[:devid]> | list)]
 	[--help | -h] [--version] [-d] [-d]
 	[(--frequency | -f) <frequency>]
 	[--erase]
@@ -20,29 +21,29 @@ A Linux tool for the MikroElektronika (www.mikroe.com) AVRprog2 programming hard
 @section optdesc Option Description
 
 @code
-  --mcu, -m <mcutype>     Specify the mcu type by name.
-            <file>.xml    Specify the path to a device configuration file.
-            list          Get a list of supported devices.
-                          If no mcu type is given, autodetection gets enabled.
-  --usb, -u <bus:device>  Specify the USB bus and device id.
-			list          Get a list of available devices
-                          If bus and device id are not specified, the first discovered device is used.
-  --help, -h              Display this usage message.
-  --version               Print version informations.
-  -d                      Print more information.
-                          Specified a second time prints even more information.
-  --frequency, -f <freq>  Device frequency in Hz. (If the value is smaller than
-                          0x100, it is passed directly to the programmer.)
-                          If no frequency is given, autodetection gets enabled.
-  --erase                 Perform a chip erase.
-  --flash (r|w|v):<file>  Perform the given operation on flash memory.
-                          r    Read memory and save it to file.
-                          w    Write content from file to memory.
-                          v    Verify the memory content against file.
-  --eeprom (r|w|v):<file> Perform the given operation on eeprom memory.
-  --fuses (r|w|v):(<file> | <lfuse>[,<hfuse>[,<efuse>]]) 
-                          Perform the given operation on fuse bytes.
-                          Values have to be specified in hex format (without 0x).
+  --mcu, -m <mcutype>       Specify the mcu type by name.
+            <file>.xml      Specify the path to a device configuration file.
+            list            Get a list of supported devices.
+                            If no mcu type is given, autodetection gets enabled.
+  --usb, -u <bus[:device]>  Specify the USB bus and optionally the device id.
+            list            Get a list of available devices
+                            If bus and device id are not specified, the first discovered device is used.
+  --help, -h                Display this usage message.
+  --version                 Print version informations.
+  -d                        Print more information.
+                            Specified a second time prints even more information.
+  --frequency, -f <freq>    Device frequency in Hz. (If the value is smaller than
+                            0x100, it is passed directly to the programmer.)
+                            If no frequency is given, autodetection gets enabled.
+  --erase                   Perform a chip erase.
+  --flash (r|w|v):<file>    Perform the given operation on flash memory.
+                            r    Read memory and save it to file.
+                            w    Write content from file to memory.
+                            v    Verify the memory content against file.
+  --eeprom (r|w|v):<file>   Perform the given operation on eeprom memory.
+  --fuses (r|w|v):(<file>   | <lfuse>[,<hfuse>[,<efuse>]]) 
+                            Perform the given operation on fuse bytes.
+                            Values have to be specified in hex format (without 0x).
 Calling avrprog without any memory operations will reset the target device.
 @endcode
 
