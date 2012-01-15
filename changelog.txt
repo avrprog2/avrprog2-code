@@ -1,3 +1,6 @@
+Version 1.3.1
+	- improved udev rules
+
 Version 1.3.0
 	- fixed support for *.ihex files
 	- print usage message when invalid memory operations are given
