@@ -41,7 +41,7 @@ avrprog2_SOURCES = \
 	src/main.cpp \
 	src/MyException.cpp \
 	src/MyException.h
-	
+
 # additional files to install
 dist_configfiles_DATA = \
 	config/atmega1280.xml \
@@ -50,8 +50,8 @@ dist_configfiles_DATA = \
 	config/atmega2560.xml
 
 udevrulesdir = /lib/udev/rules.d
-dist_udevrules_DATA = 60-avrpog.rules
-	
+dist_udevrules_DATA = 60-avrprog.rules
+
 # additional files
 dist_noinst_DATA = \
 	readme.txt \
@@ -62,13 +62,13 @@ dist_noinst_DATA = \
 
 doc: $(SOURCES) doc.txt readme.txt man.txt
 	doxygen Doxyfile
-	
+
 man/man1/@PACKAGE@.1: man.txt
 	doxygen Doxyfile_man
-	
+
 distclean-local:
 	rm -rf doc
 	rm -rf man
 
 man_MANS = man/man1/@PACKAGE@.1
-	
+

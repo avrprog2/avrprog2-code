@@ -1,0 +1,1 @@
+SUBSYSTEM=="usb", ATTR{idVendor}=="3e1a", ATTR{idProduct}=="0200", ENV{ACL_MANAGE}="1"

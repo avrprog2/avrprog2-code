@@ -63,7 +63,7 @@ void usage() {
 	cout << "   [(--usb | -u) (<busid[:devid]> | list)]"										<< endl;
 	cout << "   [--help | -h] [--version] [-d] [-d]"											<< endl;
 	cout << "   [(--frequency | -f) <frequency>]"												<< endl;
-	cout << "   [--erase]"																		<< endl;
+	cout << "   [--erase] | [--no-erase]"														<< endl;
 	cout << "   [--flash (r|w|v):<file>]"														<< endl;
 	cout << "   [--eeprom (r|w|v):<file>]"														<< endl;
 	cout << "   [--fuses (r|w|v):(<file> | <lfuse>[,<hfuse>[,<efuse>]])]"						<< endl;
@@ -85,12 +85,13 @@ void usage() {
 	cout << "                            0x100, it is passed directly to the programmer.)"		<< endl;
 	cout << "                            If no frequency is given, autodetection gets enabled." << endl;
 	cout << "  --erase                   Perform a chip erase."									<< endl;
+	cout << "  --no-erase                Skip implicit erase before programming flash memory."	<< endl;
 	cout << "  --flash (r|w|v):<file>    Perform the given operation on flash memory." 			<< endl;
 	cout << "                            r    Read memory and save it to file."					<< endl;
 	cout << "                            w    Write content from file to memory." 				<< endl;
 	cout << "                            v    Verify the memory content against file."			<< endl;
 	cout << "  --eeprom (r|w|v):<file>   Perform the given operation on eeprom memory." 		<< endl;
-	cout << "  --fuses (r|w|v):(<file>   | <lfuse>[,<hfuse>[,<efuse>]]) "						<< endl;
+	cout << "  --fuses (r|w|v):(<file> | <lfuse>[,<hfuse>[,<efuse>]]) "							<< endl;
 	cout <<	"                            Perform the given operation on fuse bytes." 			<< endl;
 	cout <<	"                            Values have to be specified in hex format (without 0x)." << endl;
 	cout <<	"Calling " << PACKAGE_NAME << " without any memory operations will reset the target device." << endl;
@@ -125,6 +126,7 @@ int main(int argc, char** argv) {
 	int debug = 0;
 	bool verify = false;
 	bool chipErase = false;
+	bool noChipErase = false;
 	string flash = "";
 	string eeprom = "";
 	string fuses = "";
@@ -147,6 +149,7 @@ int main(int argc, char** argv) {
 			{"verify",		no_argument,		NULL, 'v'},
 			{"frequency",	required_argument,	NULL, 'f'},
 			{"erase",		no_argument,		NULL, 'E'},
+			{"no-erase",	no_argument,		NULL, 'N'},
 			{"flash",		required_argument,	NULL, 'F'},
 			{"eeprom",		required_argument,	NULL, 'P'},
 			{"fuses",		required_argument,	NULL, 'U'},
@@ -186,6 +189,9 @@ int main(int argc, char** argv) {
 				break;
 			case 'E':
 				chipErase = true;
+				break;
+			case 'N':
+				noChipErase = true;
 				break;
 			case 'F':
 				if (flash.size() != 0) throw CLArgumentException("flash was already specified.");
@@ -274,9 +280,12 @@ int main(int argc, char** argv) {
 		if (fusesOptions == NULL && flashOptions == NULL && eepromOptions == NULL && chipErase == false) {
 			cout << "Reset device..." << endl;
 		}
+		if (flashOptions != NULL && noChipErase) {
+			cout << "Flash memory will be programmed without a preceding chip erase." << endl;
+		}
 
 		// perform chip erase
-		if (chipErase == true) {
+		if (chipErase == true && noChipErase == false) {
 			cout << endl << "Chip erase..." << endl;
 			prog->chipErase();
 		}
