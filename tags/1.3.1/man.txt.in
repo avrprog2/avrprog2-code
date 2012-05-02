@@ -1,0 +1,115 @@
+/*!
+
+@page @PACKAGE@
+
+A Linux tool for the MikroElektronika (www.mikroe.com) AVRprog2 programming hardware.
+
+@section syn Synopsis
+
+@code
+@PACKAGE@ [(--mcu | -m) (<mcutype> | <file>.xml | list)]
+	[(--usb | -u) (<busid[:devid]> | list)]
+	[--help | -h] [--version] [-d] [-d]
+	[(--frequency | -f) <frequency>]
+	[--erase]
+	[--flash (r|w|v):<file>]
+	[--eeprom (r|w|v):<file>]
+	[--fuses (r|w|v):(<file> | <lfuse>[,<hfuse>[,<efuse>]])]
+
+@endcode
+	
+@section optdesc Option Description
+
+@code
+  --mcu, -m <mcutype>       Specify the mcu type by name.
+            <file>.xml      Specify the path to a device configuration file.
+            list            Get a list of supported devices.
+                            If no mcu type is given, autodetection gets enabled.
+  --usb, -u <bus[:device]>  Specify the USB bus and optionally the device id.
+            list            Get a list of available devices
+                            If bus and device id are not specified, the first discovered device is used.
+  --help, -h                Display this usage message.
+  --version                 Print version informations.
+  -d                        Print more information.
+                            Specified a second time prints even more information.
+  --frequency, -f <freq>    Device frequency in Hz. (If the value is smaller than
+                            0x100, it is passed directly to the programmer.)
+                            If no frequency is given, autodetection gets enabled.
+  --erase                   Perform a chip erase.
+  --flash (r|w|v):<file>    Perform the given operation on flash memory.
+                            r    Read memory and save it to file.
+                            w    Write content from file to memory.
+                            v    Verify the memory content against file.
+  --eeprom (r|w|v):<file>   Perform the given operation on eeprom memory.
+  --fuses (r|w|v):(<file>   | <lfuse>[,<hfuse>[,<efuse>]]) 
+                            Perform the given operation on fuse bytes.
+                            Values have to be specified in hex format (without 0x).
+Calling avrprog without any memory operations will reset the target device.
+@endcode
+
+@section files Files
+Avrprog can read files in elf and ihex format. It determines the type by the file extension. Where *.elf
+files are opened as elf, whereas *.hex, *.ihex and *.eep files are treated as intel hex files.
+
+@section binparse Behavior of Binary File Parsers
+
+In the following the behavior of the file parsers is described. It depends mainly on the
+type of memory (eeprom, flash or fuses) to which the file should be written.
+
+When reading content from memory to a file, this application writes allways files in hex format.
+
+@subsection ihex ihex Parser
+
+When a hex file is read, all sections of the file are copied to the programming buffer.
+If the target memory is flash memory, the \a lma entries in each section are considered. For
+other memory types the entry is ignored and all sections are written sequentially.
+
+@subsection elf elf Parser
+
+When a elf file is read it depends on the target memory which sections are copied to the internal buffer.
+If the target is flash memory, then the \a .text and \a .data sections are copied with consideration of the
+\a lma entries.
+
+If the target is eeprom memory, the \a .eeprom section is copied to the internal buffer without processing the
+\a lma entry. Hence the content will start at eemprom address 0x0000. This allows programming of elf files,
+without the need to invoke \a objcopy.
+
+When the target of the programming operation are fuse bytes, then the \a .fuse section of the elf file is read.
+Again the \a lma entry is ignored.
+
+@section ddf Device Description Files
+
+Default locations for device description files are @datadir@/@PACKAGE@ (system wide) and ~/.@PACKAGE@ (per user).
+
+Device description files contain the following information about a AVR device.
+@code
+- name
+- device signature
+- size of flash memory
+- size of flash memory page
+- size of eeprom memory
+- number of fuse bytes
+- package (used to select the programming pins, this is optional)
+@endcode
+
+This information is stored in *.xml files, which look like this one:
+@code
+----------------------------------------------------
+<device>
+    <name>ATmega 128</name>
+    <signature>0x1e9702</signature>
+    <flashSize>4096</flashSize>
+    <flashPageSize>256</flashPageSize>
+    <eepromSize>4096</eepromSize>
+    <numOfFuses>3</numOfFuses>
+    <package>TQFP64</package>
+</device>
+----------------------------------------------------
+@endcode
+
+If the \a package is not specified, avrprog tries to autodetect a device and to select the right programming pins.
+
+@section Authors
+
+@PACKAGE_NAME@ was written by Andreas Hagmann, Embedded Computing Systems group - TU Wien (http://ti.tuwien.ac.at/ecs).
+*/
