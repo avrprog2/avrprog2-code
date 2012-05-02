@@ -1,5 +1,5 @@
 AC_PREREQ([2.61])
-AC_INIT([avrprog2], [1.3.1], [ahagmann@ecs.tuwien.ac.at])
+AC_INIT([avrprog2], [1.4.0trunk], [ahagmann@ecs.tuwien.ac.at])
 AC_CONFIG_AUX_DIR([build-aux])
 AM_INIT_AUTOMAKE(foreign [subdir-objects])
 
@@ -35,19 +35,19 @@ AC_SEARCH_LIBS([zlibVersion], [z], [], [AC_MSG_ERROR([libz was not found])])
 AC_SEARCH_LIBS([libusb_init], [usb-1.0], [], [AC_MSG_ERROR([libusb-1.0 was not found])])
 AC_CHECK_HEADER([libusb-1.0/libusb.h], [], [AC_MSG_ERROR([libusb.h was not found])])
 
-# bfd 
+# bfd
 AC_SEARCH_LIBS([bfd_init], [bfd], [], [AC_MSG_ERROR([libbfd was not found])])
 AC_CHECK_HEADER([bfd.h], [], [AC_MSG_ERROR([bfd.h was not found])])
 
 # boost-filesystem
-AC_CHECK_LIB([boost_filesystem-mt], [main], [], [AC_MSG_ERROR([boost_filesystem library was not found])])
+AC_CHECK_LIB([boost_filesystem], [main], [], [AC_MSG_ERROR([boost_filesystem library was not found])])
 AC_CHECK_HEADER([boost/filesystem.hpp], [], [AC_MSG_ERROR([boost/filesystem.hpp was not found])])
 
 # Checks for header files.
 AC_CHECK_HEADERS([inttypes.h string.h])
 
 # boost system
-AC_CHECK_LIB([boost_system-mt], [main], [], [AC_MSG_ERROR([boost_system library was not found])])
+AC_CHECK_LIB([boost_system], [main], [], [AC_MSG_ERROR([boost_system library was not found])])
 AC_CHECK_HEADER([boost/foreach.hpp], [], [AC_MSG_ERROR([boost/foreach.hpp was not found])])
 AC_CHECK_HEADER([boost/property_tree/ptree.hpp], [], [AC_MSG_ERROR([boost/property_tree/ptree.hpp was not found])])
 AC_CHECK_HEADER([boost/property_tree/xml_parser.hpp], [], [AC_MSG_ERROR([boost/property_tree/xml_parser.hpp was not found])])
