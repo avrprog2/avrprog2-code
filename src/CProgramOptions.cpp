@@ -49,7 +49,7 @@ CProgramOptions::CProgramOptions(string options) {
 	// check source (path or immediate value) and determine type
 	this->source = options.substr(2, options.length());
 
-	unsigned int dot = this->source.rfind('.');
+	size_t dot = this->source.rfind('.');
 	if (dot == this->source.npos) {
 		type = IMMEDIATE;
 	}

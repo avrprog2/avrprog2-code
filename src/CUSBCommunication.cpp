@@ -36,7 +36,7 @@ CUSBCommunication::CUSBCommunication(string device) {
 
 	// parse device string, should look like "bus:device"
 	if (device.length() != 0) {
-		unsigned int colon = device.rfind(':');
+		size_t colon = device.rfind(':');
 		if (colon != device.npos) {
 			deviceNr = CFormat::stringToInt(device.substr(colon+1, device.length()));
 
@@ -114,7 +114,7 @@ CUSBCommunication::CUSBCommunication(string device) {
 	}
 
 	libusb_free_device_list(deviceList, 1);
-	
+
 	if (dev == NULL) {
 		throw USBCommunicationException("Device not found");
 	}
@@ -149,23 +149,23 @@ void CUSBCommunication::print_device_list() {
 	if (numOfDevices == LIBUSB_ERROR_NO_MEM) {
 		throw USBCommunicationException("Memory allocation failure during device discovery");
 	}
-	
+
 	for (int i=0; i<numOfDevices; i++) {
 		libusb_device *device;
 		struct libusb_device_descriptor descriptor;
-		
+
 		device = deviceList[i];
 		ret = libusb_get_device_descriptor(device, &descriptor);
 		if (ret != LIBUSB_SUCCESS) {
 			throw USBCommunicationException("Get device descriptor failure");
 		}
-		
+
 		// check if the device is a avrprog2 device
 		if ((descriptor.idVendor == VENDOR_ID) && (descriptor.idProduct == DEVICE_ID))	{
 			cout << "\tBus " << (int)libusb_get_bus_number(device) << " Device " << (int)libusb_get_device_address(device) << " (" << (int)libusb_get_bus_number(device) << ":" << (int)libusb_get_device_address(device) << ")" << endl;
 		}
 	}
-	
+
 	libusb_free_device_list(deviceList, 1);
 	libusb_exit(c);
 }
