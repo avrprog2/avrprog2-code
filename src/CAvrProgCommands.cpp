@@ -340,9 +340,9 @@ void CAvrProgCommands::writeFlashChunk(uint8_t *code, int chunk, int pageSize) {
 	uint8_t command[] = {0x07, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x05};
 	int len;
 
-	if (isEmptyChunk(code, FLASH_WRITE_CHUNK_SIZE) == true) {
-		return;
-	}
+	//if (isEmptyChunk(code, FLASH_WRITE_CHUNK_SIZE) == true) {
+	//	return;
+	//}
 
 	checksum = this->checksum(code, FLASH_WRITE_CHUNK_SIZE);
 
