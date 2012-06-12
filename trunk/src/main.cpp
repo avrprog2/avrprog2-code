@@ -302,7 +302,7 @@ int main(int argc, char** argv) {
 				}
 #if WRITE_FUSES_SUPPORT
 				prog->writeFuses(fusesOptions->getLfuse(), fusesOptions->getHfuse(), fusesOptions->getEfuse(), fusesOptions->getNumOfFuses());
-				cout << fusesOptions->getNumOfFuses() << " fuses byte written" << endl;
+				cout << fusesOptions->getNumOfFuses() << " fuse bytes written" << endl;
 
 				if (verify == true) {
 					cout << endl << "Verify fuse bytes..." << endl;
