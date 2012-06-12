@@ -26,6 +26,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "avrprog.h"
 #include "CProgressbar.h"
 #include "COut.h"
+#include <unistd.h>
 
 using namespace std;
 
