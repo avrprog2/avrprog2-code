@@ -29,6 +29,7 @@ fi
 # libs required only on some systems (known from openSUSE)
 AC_SEARCH_LIBS([dlopen], [dl], [], [AC_MSG_ERROR([libdl was not found])])
 AC_CHECK_LIB([iberty], [main], [], [AC_MSG_ERROR([libiberty was not found])])
+AC_CHECK_LIB([intl], [main], [], [AC_MSG_ERROR([libintl was not found])])
 AC_SEARCH_LIBS([zlibVersion], [z], [], [AC_MSG_ERROR([libz was not found])])
 
 # Need at least libusb-1.0
