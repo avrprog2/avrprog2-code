@@ -6,6 +6,8 @@ AM_INIT_AUTOMAKE(foreign [subdir-objects])
 AC_CONFIG_SRCDIR([src/CAVRprog.cpp])
 AC_CONFIG_HEADERS([config.h])
 
+AM_SILENT_RULES([yes])
+
 #AC_LANG_PUSH([C++])
 AC_LANG_CPLUSPLUS
 
@@ -27,10 +29,10 @@ fi
 # Checks for libraries and headers
 
 # libs required only on some systems (known from openSUSE)
-AC_SEARCH_LIBS([dlopen], [dl], [], [AC_MSG_ERROR([libdl was not found])])
-AC_CHECK_LIB([iberty], [main], [], [AC_MSG_ERROR([libiberty was not found])])
+AC_SEARCH_LIBS([dlopen], [dl], [], [])
+AC_CHECK_LIB([iberty], [main], [], [])
 AC_CHECK_LIB([intl], [main], [], [])
-AC_SEARCH_LIBS([zlibVersion], [z], [], [AC_MSG_ERROR([libz was not found])])
+AC_SEARCH_LIBS([zlibVersion], [z], [], [])
 
 # Need at least libusb-1.0
 AC_SEARCH_LIBS([libusb_init], [usb-1.0], [], [AC_MSG_ERROR([libusb-1.0 was not found])])

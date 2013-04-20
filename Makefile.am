@@ -39,8 +39,8 @@ avrprog2_SOURCES = \
 	src/CUSBCommunication.cpp \
 	src/CUSBCommunication.h \
 	src/main.cpp \
-	src/MyException.cpp \
-	src/MyException.h
+	src/ExceptionBase.cpp \
+	src/ExceptionBase.h
 
 # additional files to install
 dist_configfiles_DATA = \
