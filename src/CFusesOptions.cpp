@@ -21,7 +21,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "CFormat.h"
 #include <vector>
 
-CFusesOptions::CFusesOptions(string options) : CMemoryOptions(options, BUFFER_OFFSET, vector<string>{".fuse"}) {
+CFusesOptions::CFusesOptions(string options) : CMemoryOptions(options, BUFFER_OFFSET, vector<string>{".fuse"}), lfuse(0), hfuse(0), efuse(0), numOfFuses(0) {
 	// parse immediate values, write to buffer
 	if ((operation == WRITE || operation == VERIFY) && this->type == IMMEDIATE) {
 		switch (source.length()) {
