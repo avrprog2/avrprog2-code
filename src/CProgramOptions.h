@@ -20,7 +20,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #ifndef CPROGRAMOPTIONS_H_
 #define CPROGRAMOPTIONS_H_
 
-#include "MyException.h"
+#include "ExceptionBase.h"
 #include <string>
 
 /// memory operation types
@@ -87,7 +87,7 @@ protected:
 /**
  * Exception thrown by CProgramOptions.
  */
-class ProgramOptionsException : public MyException {
+class ProgramOptionsException : public ExceptionBase {
 public:
 	ProgramOptionsException(string err);
 };

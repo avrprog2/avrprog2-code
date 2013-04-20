@@ -85,6 +85,6 @@ CProgramOptions::~CProgramOptions() {
 
 }
 
-ProgramOptionsException::ProgramOptionsException(string err) : MyException(err) {
+ProgramOptionsException::ProgramOptionsException(string err) : ExceptionBase(err) {
 
 }

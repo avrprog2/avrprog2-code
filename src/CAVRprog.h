@@ -22,7 +22,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "CAvrProgCommands.h"
 #include "CAVRDevice.h"
-#include "MyException.h"
+#include "ExceptionBase.h"
 
 typedef enum {
 	FREQUENCY_AUTODETECT	= -1,
@@ -196,7 +196,7 @@ protected:
 /**
  * @brief Exception thrown by CAVRprog
  */
-class ProgrammerException : public MyException {
+class ProgrammerException : public ExceptionBase {
 public:
 	ProgrammerException(string err);
 };

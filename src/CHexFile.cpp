@@ -75,6 +75,6 @@ CHexFile::~CHexFile() {
 }
 
 
-FileException::FileException(string err) : MyException(err) {
+FileException::FileException(string err) : ExceptionBase(err) {
 
 }

@@ -27,7 +27,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 using namespace std;
 
-CUSBCommunication::CUSBCommunication(string device) {
+CUSBCommunication::CUSBCommunication(string device) : transfer(NULL), isoReceivedLen(0), error(0) {
 	int ret;
 	int numOfDevices;
 	libusb_device **deviceList;
@@ -302,7 +302,7 @@ CUSBCommunication::~CUSBCommunication() {
 	}
 }
 
-USBCommunicationException::USBCommunicationException(string err) : MyException(err) {
+USBCommunicationException::USBCommunicationException(string err) : ExceptionBase(err) {
 
 }
 

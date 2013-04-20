@@ -19,6 +19,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "CLArgumentException.h"
 
-CLArgumentException::CLArgumentException(string err) : MyException(err) {
+CLArgumentException::CLArgumentException(string err) : ExceptionBase(err) {
 
 }

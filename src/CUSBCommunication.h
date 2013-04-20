@@ -23,7 +23,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include <libusb-1.0/libusb.h>
 #include <string>
 #include "avrprog.h"
-#include "MyException.h"
+#include "ExceptionBase.h"
 
 using namespace std;
 
@@ -123,7 +123,7 @@ private:
 /**
  * @brief	Exception thrown by CUSBCommunication
  */
-class USBCommunicationException : public MyException {
+class USBCommunicationException : public ExceptionBase {
 public:
 	USBCommunicationException(string err);
 };
