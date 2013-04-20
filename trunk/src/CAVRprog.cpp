@@ -33,7 +33,6 @@ CAVRprog::CAVRprog(string device) : CAvrProgCommands(device), device(NULL) {
 
 void CAVRprog::connect(string deviceFile, int frequency) {
 	bool error = false;
-	unsigned int f;
 	uint32_t deviceSignature;
 
 	if (frequency < 0) {						// autodetect programming frequency
@@ -75,6 +74,8 @@ void CAVRprog::connect(string deviceFile, int frequency) {
 	cout << "Connected to '" << device->name() << "'." << endl;
 
 	if (frequency < 0) {				// autodetect programming frequency
+		unsigned int f;
+
 		cout << "Autodetect programming frequency..." << endl;
 
 		// increase the frequency until an error occurs or the maximum is reached

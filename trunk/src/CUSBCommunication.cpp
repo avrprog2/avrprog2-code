@@ -258,7 +258,7 @@ void CUSBCommunication::iso_transfer(int endpoint, uint8_t *buffer, int *len) {
 void CUSBCommunication::callback(struct libusb_transfer *transfer) {
 	// regenerate "this" pointer named self
 	CUSBCommunication *self;
-	self = (CUSBCommunication*)transfer->user_data;
+	self = static_cast<CUSBCommunication*>(transfer->user_data);
 
 	if (transfer->status == LIBUSB_TRANSFER_COMPLETED) {
 		//cout << transfer->num_iso_packets << endl;

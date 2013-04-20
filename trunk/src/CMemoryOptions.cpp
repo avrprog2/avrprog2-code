@@ -37,7 +37,6 @@ using namespace std;
 
 CMemoryOptions::CMemoryOptions(string options, offset_t offsetType, vector<string> sectionNames) : CProgramOptions(options), buffer(NULL), bufferLen(0) {
 	char *target = NULL;
-	int sectionCount = 0;
 	bfd *inputFile;
 
 	if (this->type == IMMEDIATE) {
@@ -71,6 +70,8 @@ CMemoryOptions::CMemoryOptions(string options, offset_t offsetType, vector<strin
 		//}
 
 		if (operation == WRITE || operation == VERIFY) {
+			int sectionCount = 0;
+
 			asection *section;
 
 			switch (this->type) {
