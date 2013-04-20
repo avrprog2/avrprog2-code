@@ -1,17 +1,19 @@
 Version 1.4.0
 	- [new] add an option (--no-erase) to skip an implicit chip erase
 	  before programming flash memory
-	- [new] support for MacOS
-	- [fix] removed "-mt" from boost libs (thanks to Jakob Gruber)
-	- [fix] use SUBSYSTEM in udev rules file (thanks to Jakob Gruber)
+	- [new] builds on MacOS
+	- [new] write usage() to stderr in error situations
+	- [fix] (bug 3496411) removed "-mt" from boost libs (thanks to Jakob Gruber)
+	- [fix] (bug 3497866) use SUBSYSTEM in udev rules file (thanks to Jakob Gruber)
 	- [fix] fixed immediate specification of fuses on 64-bit systems
 	  (thanks to Matthias Burgholzer)
 	- [fix] fixed specification of usb bus id on 64-bit systems
 	- [fix] add workaround to flash files with empty chunks
-	- [fix] add unistd.h for gcc 4.7 (thanks to Jakob Gruber)
-	- [fix] include config.h before bfd.h (thanks to Jakob Gruber)
+	- [fix] (bug 3531334) add unistd.h for gcc 4.7 (thanks to Jakob Gruber)
+	- [fix] (bug 3599992)include config.h before bfd.h (thanks to Jakob Gruber)
 	- [fix] add libintl, necassary to build on MacOS
-	
+	- [fix] minor code improvements
+	- [fix] (bug 3607077) programming of empty flash pages
 
 Version 1.3.1
 	- error message on device id mismatch now shows also the device name

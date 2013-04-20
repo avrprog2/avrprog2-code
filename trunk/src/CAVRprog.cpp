@@ -66,7 +66,7 @@ void CAVRprog::connect(string deviceFile, int frequency) {
 			CAVRDevice d(deviceSignature);
 			deviceName = " (" + d.name() + ")";
 		}
-		catch (DeviceNotFoundException e) {
+		catch (DeviceNotFoundException &e) {
 
 		}
 		throw ProgrammerException("Wrong device signature: expected 0x" + CFormat::intToHexString(device->deviceSignature()) + " (" + device->name() + ") but found 0x" + CFormat::intToHexString(deviceSignature) + deviceName + ".");
@@ -96,7 +96,7 @@ void CAVRprog::connect(string deviceFile, int frequency) {
 			}
 		}
 
-		cout << "Set frequency to " << (double)(frequencies[f-1]/1000000.0) << "MHz." << endl;
+		cout << "Set frequency for " << (double)(frequencies[f-1]/1000000.0) << "MHz." << endl;
 	}
 }
 
@@ -262,6 +262,6 @@ CAVRprog::~CAVRprog() {
 	}
 }
 
-ProgrammerException::ProgrammerException(string err) : MyException(err) {
+ProgrammerException::ProgrammerException(string err) : ExceptionBase(err) {
 
 }

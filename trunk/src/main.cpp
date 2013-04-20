@@ -32,6 +32,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include <iostream>
 #include <cstdlib>
+#include <ostream>
 #include <inttypes.h>
 #include <stdio.h>
 //#include <signal.h>
@@ -46,7 +47,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "CFlashOptions.h"
 #include "CFusesOptions.h"
 #include "CHexFile.h"
-#include "MyException.h"
+#include "ExceptionBase.h"
 #include "CLArgumentException.h"
 #include "COut.h"
 
@@ -57,46 +58,47 @@ CAVRprog *prog = NULL;
 /**
  * @brief	Displays a usage message.
  */
-void usage() {
-	cout 																						<< endl;
-	cout << "Usage: " << PACKAGE_NAME << " [(--mcu | -m) (<mcutype> | <file>.xml | list)]"		<< endl;
-	cout << "   [(--usb | -u) (<busid[:devid]> | list)]"										<< endl;
-	cout << "   [--help | -h] [--version] [-d] [-d]"											<< endl;
-	cout << "   [(--frequency | -f) <frequency>]"												<< endl;
-	cout << "   [--erase] | [--no-erase]"														<< endl;
-	cout << "   [--flash (r|w|v):<file>]"														<< endl;
-	cout << "   [--eeprom (r|w|v):<file>]"														<< endl;
-	cout << "   [--fuses (r|w|v):(<file> | <lfuse>[,<hfuse>[,<efuse>]])]"						<< endl;
-	cout << endl;
-	cout << "Option Description:"																<< endl;
-	cout << "  --mcu, -m <mcutype>       Specify the mcu type by name."							<< endl;
-	cout << "            <file>.xml      Specify the path to a device configuration file."		<< endl;
-	cout << "            list            Get a list of supported devices." 						<< endl;
-	cout << "                            If no mcu type is given, autodetection gets enabled." 	<< endl;
-	cout << "  --usb, -u <bus[:device]>  Specify the USB bus and optionally the device id."		<< endl;
-	cout << "            list            Get a list of available devices"						<< endl;
-	cout << "                            If bus and device id are not specified, the first " 	<< endl;
-	cout << "                            discovered device is used."							<< endl;
-	cout << "  --help, -h                Display this usage message." 							<< endl;
-	cout << "  --version                 Print version informations." 							<< endl;
-	cout << "  -d                        Print more information."								<< endl;
-	cout << "                            Specified a second time prints even more information." << endl;
-	cout << "  --frequency, -f <freq>    Device frequency in Hz. (If the value is smaller than" << endl;
-	cout << "                            0x100, it is passed directly to the programmer.)"		<< endl;
-	cout << "                            If no frequency is given, autodetection gets enabled." << endl;
-	cout << "  --erase                   Perform a chip erase."									<< endl;
-	cout << "  --no-erase                Skip implicit erase before programming flash memory."	<< endl;
-	cout << "  --flash (r|w|v):<file>    Perform the given operation on flash memory." 			<< endl;
-	cout << "                            r    Read memory and save it to file."					<< endl;
-	cout << "                            w    Write content from file to memory." 				<< endl;
-	cout << "                            v    Verify the memory content against file."			<< endl;
-	cout << "  --eeprom (r|w|v):<file>   Perform the given operation on eeprom memory." 		<< endl;
-	cout << "  --fuses (r|w|v):(<file> | <lfuse>[,<hfuse>[,<efuse>]]) "							<< endl;
-	cout <<	"                            Perform the given operation on fuse bytes." 			<< endl;
-	cout <<	"                            Values have to be specified in hex format (without 0x)." << endl;
-	cout <<	"Calling " << PACKAGE_NAME << " without any memory operations will reset the target device." << endl;
-	cout 																						<< endl;
-	cout << "For more information type 'man " << PACKAGE_NAME << "'."							<< endl;
+void usage(ostream *out = &cout) {
+	*out 																						<< endl;
+	*out << "Usage: " << PACKAGE_NAME << " [(--mcu | -m) (<mcutype> | <file>.xml | list)]"		<< endl;
+	*out << "   [(--usb | -u) (<busid[:devid]> | list)]"										<< endl;
+	*out << "   [--help | -h] [--version] [-d] [-d] [-v]"										<< endl;
+	*out << "   [(--frequency | -f) <frequency>]"												<< endl;
+	*out << "   [--erase] | [--no-erase]"														<< endl;
+	*out << "   [--flash (r|w|v):<file>]"														<< endl;
+	*out << "   [--eeprom (r|w|v):<file>]"														<< endl;
+	*out << "   [--fuses (r|w|v):(<file> | <lfuse>[,<hfuse>[,<efuse>]])]"						<< endl;
+	*out << endl;
+	*out << "Option Description:"																<< endl;
+	*out << "  --mcu, -m <mcutype>       Specify the mcu type by name."							<< endl;
+	*out << "            <file>.xml      Specify the path to a device configuration file."		<< endl;
+	*out << "            list            Get a list of supported devices." 						<< endl;
+	*out << "                            If no mcu type is given, autodetection gets enabled." 	<< endl;
+	*out << "  --usb, -u <bus[:device]>  Specify the USB bus and optionally the device id."		<< endl;
+	*out << "            list            Get a list of available devices"						<< endl;
+	*out << "                            If bus and device id are not specified, the first " 	<< endl;
+	*out << "                            discovered device is used."							<< endl;
+	*out << "  --help, -h                Display this usage message." 							<< endl;
+	*out << "  --version                 Print version informations." 							<< endl;
+	*out << "  -d                        Print more information."								<< endl;
+	*out << "                            Specified a second time prints even more information." << endl;
+	*out << "  -v                        Verify memory writes."									<< endl;
+	*out << "  --frequency, -f <freq>    Device frequency in Hz. (If the value is smaller than" << endl;
+	*out << "                            0x100, it is passed directly to the programmer.)"		<< endl;
+	*out << "                            If no frequency is given, autodetection gets enabled." << endl;
+	*out << "  --erase                   Perform a chip erase."									<< endl;
+	*out << "  --no-erase                Skip implicit erase before programming flash memory."	<< endl;
+	*out << "  --flash (r|w|v):<file>    Perform the given operation on flash memory." 			<< endl;
+	*out << "                            r    Read memory and save it to file."					<< endl;
+	*out << "                            w    Write content from file to memory." 				<< endl;
+	*out << "                            v    Verify the memory content against file."			<< endl;
+	*out << "  --eeprom (r|w|v):<file>   Perform the given operation on eeprom memory." 		<< endl;
+	*out << "  --fuses (r|w|v):(<file> | <lfuse>[,<hfuse>[,<efuse>]]) "							<< endl;
+	*out <<	"                            Perform the given operation on fuse bytes." 			<< endl;
+	*out <<	"                            Values have to be specified in hex format (without 0x)." << endl;
+	*out <<	"Calling " << PACKAGE_NAME << " without any memory operations will reset the target device." << endl;
+	*out 																						<< endl;
+	*out << "For more information type 'man " << PACKAGE_NAME << "'."							<< endl;
 }
 
 void closeProgrammer() {
@@ -307,7 +309,7 @@ int main(int argc, char** argv) {
 				if (verify == true) {
 					cout << endl << "Verify fuse bytes..." << endl;
 					if (prog->verifyFuses(fusesOptions->getBuffer(), fusesOptions->getBufferSize()) == false) {
-						throw MyException("Verify fuse bytes failed.");
+						throw ExceptionBase("Verify fuse bytes failed.");
 					}
 					else {
 						cout << "OK, " << fusesOptions->getBufferSize() << " fuse bytes verified" << endl;
@@ -365,7 +367,7 @@ int main(int argc, char** argv) {
 				if (verify == true) {
 					cout << endl << "Verify flash memory..." << endl;
 					if (prog->fastVerifyFlash(flashOptions->getBuffer(), flashOptions->getBufferSize()) == false) {
-						throw MyException("Verify flash failed.");
+						throw ExceptionBase("Verify flash failed.");
 					}
 					else {
 						cout << "OK, " << flashOptions->getBufferSize() << " bytes verified" << endl;
@@ -410,7 +412,7 @@ int main(int argc, char** argv) {
 					cout << endl << "Verify eeprom memory..." << endl;
 					if (prog->fastVerifyEEPROM(eepromOptions->getBuffer(), eepromOptions->getBufferSize()) == false) {
 						//cout << "failed" << endl;
-						throw MyException("Verify eeprom failed.");
+						throw ExceptionBase("Verify eeprom failed.");
 					}
 					else {
 						cout << "OK, " << eepromOptions->getBufferSize() << " bytes verified" << endl;
@@ -457,7 +459,7 @@ int main(int argc, char** argv) {
 	}
 	catch (CLArgumentException &e) {
 		cerr << e.what() << endl;
-		usage();
+		usage(&cerr);
 		returnValue = COMMON_ERROR_NUMBER;
 	}
 	catch (DeviceNotFoundException &e) {
@@ -471,7 +473,7 @@ int main(int argc, char** argv) {
 		cerr << "Exiting..." << endl;
 		returnValue = COMMON_ERROR_NUMBER;
 	}
-	catch (MyException &e) {
+	catch (ExceptionBase &e) {
 		cerr << e.what() << endl;
 		cerr << "Exiting..." << endl;
 		returnValue = COMMON_ERROR_NUMBER;

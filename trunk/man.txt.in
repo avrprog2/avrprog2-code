@@ -9,7 +9,7 @@ A Linux tool for the MikroElektronika (www.mikroe.com) AVRprog2 programming hard
 @code
 @PACKAGE@ [(--mcu | -m) (<mcutype> | <file>.xml | list)]
 	[(--usb | -u) (<busid[:devid]> | list)]
-	[--help | -h] [--version] [-d] [-d]
+	[--help | -h] [--version] [-d] [-d] [-v]
 	[(--frequency | -f) <frequency>]
 	[--erase] | [--no-erase]
 	[--flash (r|w|v):<file>]
@@ -32,6 +32,7 @@ A Linux tool for the MikroElektronika (www.mikroe.com) AVRprog2 programming hard
   --version                 Print version informations.
   -d                        Print more information.
                             Specified a second time prints even more information.
+  -v                        Verify memory writes.
   --frequency, -f <freq>    Device frequency in Hz. (If the value is smaller than
                             0x100, it is passed directly to the programmer.)
                             If no frequency is given, autodetection gets enabled.
@@ -108,7 +109,7 @@ This information is stored in *.xml files, which look like this one:
 ----------------------------------------------------
 @endcode
 
-If the \a package is not specified, avrprog tries to autodetect a device and to select the right programming pins.
+If the \a package is not specified, avrprog2 tries to autodetect a device and to select the right programming pins.
 
 @section Authors
 

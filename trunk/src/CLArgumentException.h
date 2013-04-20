@@ -20,12 +20,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #ifndef CLARGUMENTEXCEPTION_H_
 #define CLARGUMENTEXCEPTION_H_
 
-#include "MyException.h"
+#include "ExceptionBase.h"
 
 /**
  * @brief	Exception thrown by main.
  */
-class CLArgumentException : public MyException {
+class CLArgumentException : public ExceptionBase {
 public:
 	CLArgumentException(string err);
 };

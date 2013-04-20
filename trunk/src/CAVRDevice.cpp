@@ -321,10 +321,10 @@ CAVRDevice::~CAVRDevice() {
 
 }
 
-DeviceException::DeviceException(string err) : MyException(err) {
+DeviceException::DeviceException(string err) : ExceptionBase(err) {
 
 }
 
-DeviceNotFoundException::DeviceNotFoundException(string err) : MyException(err) {
+DeviceNotFoundException::DeviceNotFoundException(string err) : ExceptionBase(err) {
 
 }

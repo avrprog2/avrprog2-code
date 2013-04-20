@@ -21,12 +21,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  * date:	2011-02-03
  */
 
-#include "MyException.h"
+#include "ExceptionBase.h"
 
-MyException::MyException(string err) {
+ExceptionBase::ExceptionBase(string err) {
 	errorStr = err;
 }
 
-string MyException::what() {
+string ExceptionBase::what() {
 	return errorStr;
 }

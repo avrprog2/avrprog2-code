@@ -151,6 +151,8 @@ private:
 		INFO_VERSION	= 0x02,
 	} programmer_info_t;
 
+	bool continuedWrite;
+
 	// private functions are documented in the *.cpp file
 	void checkDevice();
 	uint8_t *readMemory(int size, memory_t mem);
@@ -172,7 +174,7 @@ private:
 /**
  * Exception thrown by CAvrProgCommands
  */
-class CommandException : public MyException {
+class CommandException : public ExceptionBase {
 public:
 	CommandException(string err);
 };
@@ -180,7 +182,7 @@ public:
 /**
  * Exception thrown by CAvrProgCommands
  */
-class ChecksumException : public MyException {
+class ChecksumException : public ExceptionBase {
 public:
 	ChecksumException(string err);
 };

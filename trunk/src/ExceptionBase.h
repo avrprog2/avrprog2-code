@@ -17,18 +17,17 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 
-#ifndef MYEXCEPTION_H_
-#define MYEXCEPTION_H_
+#ifndef EXCEPTIONBASE_H_
+#define EXCEPTIONBASE_H_
 
 #include <string>
-#include <exception>
 
 using namespace std;
 
 /**
  * @brief Base class for all exceptions.
  */
-class MyException {
+class ExceptionBase {
 protected:
 	string errorStr;			///< stores the error message
 public:
@@ -37,7 +36,7 @@ public:
 	 *
 	 * @param err	The error description.
 	 */
-	MyException(string err);
+	ExceptionBase(string err);
 
 	/**
 	 * @brief	Get the stored error message.
@@ -47,4 +46,4 @@ public:
 	string what();
 };
 
-#endif /* MYEXCEPTION_H_ */
+#endif /* EXCEPTIONBASE_H_ */

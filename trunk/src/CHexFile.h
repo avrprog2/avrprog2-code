@@ -22,7 +22,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include <string>
 #include <inttypes.h>
-#include "MyException.h"
+#include "ExceptionBase.h"
 
 using namespace std;
 
@@ -59,7 +59,7 @@ protected:
 /**
  * @brief	Exception thrown by CHexFile
  */
-class FileException : public MyException {
+class FileException : public ExceptionBase {
 public:
 	FileException(string err);
 };

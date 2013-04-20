@@ -59,7 +59,7 @@ using namespace std;
  * - A chunk contains on or more pages and is a unit which is sent to the programming hardware in one usb transfer
  */
 
-CAvrProgCommands::CAvrProgCommands(string device) : CUSBCommunication(device) {
+CAvrProgCommands::CAvrProgCommands(string device) : CUSBCommunication(device), continuedWrite(false) {
 	uint8_t *buffer;
 	uint8_t len;
 
@@ -141,7 +141,7 @@ void CAvrProgCommands::writeFlash(uint8_t *buffer, int size, int pageSize) {
 	uint8_t lastChunk[FLASH_WRITE_CHUNK_SIZE];
 	int sizeOfLastChunk;		// size of the last chunk without empty (0xff) bytes
 	int chunk;
-	int numOfChunks;				// without the last chunk
+	int numOfChunks;			// without the last chunk
 
 	numOfChunks = size / FLASH_WRITE_CHUNK_SIZE;
 	sizeOfLastChunk = size - FLASH_WRITE_CHUNK_SIZE * numOfChunks;
@@ -338,12 +338,13 @@ bool CAvrProgCommands::isEmptyChunk(uint8_t *buffer, int size) {
 void CAvrProgCommands::writeFlashChunk(uint8_t *code, int chunk, int pageSize) {
 	uint8_t *buffer = NULL;
 	uint16_t checksum;
-	uint8_t command[] = {0x07, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x05};
+	uint8_t command[] = {0x07, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x05};
 	int len;
 
-	//if (isEmptyChunk(code, FLASH_WRITE_CHUNK_SIZE) == true) {
-	//	return;
-	//}
+	if (chunk != 512 && isEmptyChunk(code, FLASH_WRITE_CHUNK_SIZE) == true) {
+		this->continuedWrite = false;
+		return;
+	}
 
 	checksum = this->checksum(code, FLASH_WRITE_CHUNK_SIZE);
 
@@ -356,10 +357,12 @@ void CAvrProgCommands::writeFlashChunk(uint8_t *code, int chunk, int pageSize) {
 	command[7] = (pageSize>>0) & 0xff;	// assign chunk size
 	command[8] = (pageSize>>8) & 0xff;
 
-	// continue writing
-	if (chunk > 0) {
-		command[3] = 1;
+	// no continued write ?
+	if (chunk == 0 || this->continuedWrite == false) {
+		command[3] = 0;					// do not exactly know what this is for...
 	}
+
+	this->continuedWrite = true;
 
 	iso_write(3, code, USB_TRANSFER_SIZE);
 
@@ -850,10 +853,10 @@ CAvrProgCommands::~CAvrProgCommands() {
 	programmer(DEACTIVATE);
 }
 
-CommandException::CommandException(string err) : MyException(err) {
+CommandException::CommandException(string err) : ExceptionBase(err) {
 
 }
 
-ChecksumException::ChecksumException(string err) : MyException(err) {
+ChecksumException::ChecksumException(string err) : ExceptionBase(err) {
 
 }

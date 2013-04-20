@@ -23,7 +23,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include <inttypes.h>
 #include <string>
 #include "avrprog.h"
-#include "MyException.h"
+#include "ExceptionBase.h"
 
 using namespace std;
 
@@ -132,7 +132,7 @@ private:
 /**
  * Exception thrown by CAVRDevice.
  */
-class DeviceException : public MyException {
+class DeviceException : public ExceptionBase {
 public:
 	DeviceException(string err);
 };
@@ -140,7 +140,7 @@ public:
 /**
  * Exception thrown by CAVRDevice.
  */
-class DeviceNotFoundException : public MyException {
+class DeviceNotFoundException : public ExceptionBase {
 public:
 	DeviceNotFoundException(string err);
 };
