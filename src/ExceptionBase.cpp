@@ -23,8 +23,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "ExceptionBase.h"
 
-ExceptionBase::ExceptionBase(string err) {
-	errorStr = err;
+ExceptionBase::ExceptionBase(string err) : errorStr(err) {
+
 }
 
 string ExceptionBase::what() {

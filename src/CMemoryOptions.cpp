@@ -36,7 +36,6 @@ using namespace std;
 
 
 CMemoryOptions::CMemoryOptions(string options, offset_t offsetType, vector<string> sectionNames) : CProgramOptions(options), buffer(NULL), bufferLen(0) {
-	char *target = NULL;
 	bfd *inputFile;
 
 	if (this->type == IMMEDIATE) {
@@ -45,6 +44,8 @@ CMemoryOptions::CMemoryOptions(string options, offset_t offsetType, vector<strin
 	}
 
 	if (operation == WRITE || operation == VERIFY) {
+		char *target = NULL;
+		
 		bfd_init();
 
 		// open file

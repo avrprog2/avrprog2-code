@@ -32,7 +32,6 @@ CAVRprog::CAVRprog(string device) : CAvrProgCommands(device), device(NULL) {
 }
 
 void CAVRprog::connect(string deviceFile, int frequency) {
-	bool error = false;
 	uint32_t deviceSignature;
 
 	if (frequency < 0) {						// autodetect programming frequency
@@ -75,6 +74,7 @@ void CAVRprog::connect(string deviceFile, int frequency) {
 
 	if (frequency < 0) {				// autodetect programming frequency
 		unsigned int f;
+		bool error = false;
 
 		cout << "Autodetect programming frequency..." << endl;
 
