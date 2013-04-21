@@ -26,8 +26,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "config.h"
 
-#define VERSION_STRING "0.1"
-
 /// USB vendor id
 #define VENDOR_ID	0x3e1a
 /// USB device id
