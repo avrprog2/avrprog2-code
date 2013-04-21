@@ -66,6 +66,9 @@ doc: $(SOURCES) doc.txt readme.txt man.txt
 man/man1/@PACKAGE@.1: man.txt
 	doxygen Doxyfile_man
 
+cppcheck:
+	cppcheck --enable=all src
+
 distclean-local:
 	rm -rf doc
 	rm -rf man
