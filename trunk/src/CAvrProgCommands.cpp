@@ -99,7 +99,7 @@ void CAvrProgCommands::connect(int socket) {
 
 void CAvrProgCommands::chipErase() {
 	// the commented functions are sent by the original programmer
-	//delayMs(0x14);
+	delayMs(0x14);
 
 	//detectDevice(false);
 
@@ -123,7 +123,7 @@ void CAvrProgCommands::chipErase() {
 
 	executeCommands(command, 4, data);
 
-	//delayMs(0x14);
+	delayMs(0x14);
 }
 
 /*
@@ -134,7 +134,7 @@ void CAvrProgCommands::chipErase() {
  */
 void CAvrProgCommands::writeFlash(uint8_t *buffer, int size, int pageSize) {
 	// the commented functions are sent by the original programmer
-	//delayMs(0x14);
+	delayMs(0x14);
 
 	//detectDevice(false);
 
@@ -159,7 +159,7 @@ void CAvrProgCommands::writeFlash(uint8_t *buffer, int size, int pageSize) {
 	writeFlashChunk(lastChunk, chunk, pageSize);
 	progressbar.step();
 
-	//delayMs(0x14);
+	delayMs(0x14);
 }
 
 /*
@@ -170,7 +170,7 @@ void CAvrProgCommands::writeFlash(uint8_t *buffer, int size, int pageSize) {
  */
 void CAvrProgCommands::writeEEPROM(uint8_t *buffer, int size) {
 	// the commented functions are sent by the original programmer
-	//delayMs(0x14);
+	delayMs(0x14);
 
 	//detectDevice(false);
 
@@ -195,7 +195,7 @@ void CAvrProgCommands::writeEEPROM(uint8_t *buffer, int size) {
 	writeEEPROMChunk(lastChunk, chunk*EEPROM_WRITE_CHUNK_SIZE);
 	progressbar.step();
 
-	//delayMs(0x14);
+	delayMs(0x14);
 }
 
 void CAvrProgCommands::writeFuses(uint8_t lfuse, uint8_t hfuse, uint8_t efuse, int numOfFuses) {
@@ -231,7 +231,7 @@ void CAvrProgCommands::writeFuses(uint8_t lfuse, uint8_t hfuse, uint8_t efuse, i
 
 uint8_t *CAvrProgCommands::readFlash(int size) {
 	// the commented functions are sent by the original programmer
-	//delayMs(0x14);
+	delayMs(0x14);
 
 	//checkDevice();
 	return readMemory(size, FLASH);
@@ -241,7 +241,7 @@ uint8_t *CAvrProgCommands::readFlash(int size) {
 
 uint8_t *CAvrProgCommands::readEEPROM(int size) {
 	// the commented functions are sent by the original programmer
-	//delayMs(0x14);
+	delayMs(0x14);
 
 	//checkDevice();
 	return readMemory(size, EEPROM);
@@ -256,7 +256,7 @@ uint8_t *CAvrProgCommands::readEEPROM(int size) {
  */
 uint8_t *CAvrProgCommands::readFuses(int size) {
 	// the commented functions are sent by the original programmer
-	//delayMs(0x14);
+	delayMs(0x14);
 
 	//checkDevice();
 
