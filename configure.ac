@@ -1,5 +1,5 @@
 AC_PREREQ([2.61])
-AC_INIT([avrprog2], [1.4.0], [ahagmann@ecs.tuwien.ac.at])
+AC_INIT([avrprog2], [1.4.1], [mperner@ecs.tuwien.ac.at])
 AC_CONFIG_AUX_DIR([build-aux])
 AM_INIT_AUTOMAKE(foreign [subdir-objects])
 
