@@ -22,7 +22,7 @@ make
 sudo make install
 @endcode
 
-Another important make target is
+Another important make traget is
 make doc
 
 This will generate a html documentation of the source.
