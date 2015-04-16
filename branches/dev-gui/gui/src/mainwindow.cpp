@@ -142,13 +142,13 @@ void MainWindow::write()
     // set up the QString for the QProcess
     QString command = ui->commandText->text();
 
-    QMessageBox test;
-    test.setWindowTitle("command text test");
-    test.setText(command);
-    test.exec();
+    //QMessageBox test;
+    //test.setWindowTitle("command text test");
+    //test.setText(command);
+    //test.exec();
 
-    //QProcess *writeToMcu;
-    //writeToMcu->execute(command);
+    QProcess *writeToMcu;
+    writeToMcu->execute(command);
 }
 
 // ****************************************************************************
