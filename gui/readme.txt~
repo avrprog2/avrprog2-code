@@ -9,7 +9,7 @@ This GUI allows the user to select their mcu, frequency, hex file, and fuse/lock
 
 The following libraries are needed to compile this project:
 
-// TODO: make list of libraries
+//TODO: make list of libraries
 
 AVRprog2 is required to be installed separately. //TODO: combine source codes for one install
 Also, Qt5.4 is required to compile from source. //TODO: merge code so that Qt is not a dependancy
