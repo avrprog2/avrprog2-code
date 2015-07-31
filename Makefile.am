@@ -54,13 +54,13 @@ dist_udevrules_DATA = 60-avrprog.rules
 
 # additional files
 dist_noinst_DATA = \
-	readme.txt \
+	README.md \
 	doc.txt \
 	changelog.txt
 
 # build documentation and manpage
 
-doc: $(SOURCES) doc.txt readme.txt man.txt
+doc: $(SOURCES) doc.txt README.md man.txt
 	doxygen Doxyfile
 
 man/man1/@PACKAGE@.1: man.txt

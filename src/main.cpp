@@ -22,10 +22,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  * @brief	The starting point of the application.
  *
  * @mainpage
- * @copydoc readme
- * @copydoc Manpage
  * @copydoc Documentation
- * - @ref readme "Readme"
+ * - @ref md_README "Readme"
  * - @ref avrprog2 "Manpage"
  * - @ref Documentation "Documentation"
  */

@@ -13,9 +13,9 @@ This project uses the \a GNU \a autoconf toolchain.
 If you want to use the source directly from the repository start with (in this the newest trunk version is used):
 
 @code
-svn export https://avrprog2.svn.sourceforge.net/svnroot/avrprog2 avrprog2
-cd avrprog2/trunk
-autoreconf --install
+git clone https://github.com/avrprog2/avrprog2-code.git avrprog2
+cd avrprog2
+./autogen.sh
 @endcode
 
 To build the application from a downloaded source package start with:
