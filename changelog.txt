@@ -1,6 +1,10 @@
+Version 1.4.2
+	- migration from sourceforge to github
+
 Version 1.4.1
 	- [fix] re-enabled the delayMs functions to circumvent odd flash behavior 
 	- [fix] made the mode set in udev rule file persistent
+
 Version 1.4.0
 	- [new] add an option (--no-erase) to skip an implicit chip erase
 	  before programming flash memory

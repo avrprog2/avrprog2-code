@@ -2,7 +2,7 @@
 
 @page Documentation
 
-This documentation is mainly for programmers who want to extend the functionality of \a avrprog2 (http://sourceforge.net/projects/avrprog2) or want to reuse code in their own projects.
+This documentation is mainly for programmers who want to extend the functionality of \a avrprog2 (https://github.com/avrprog2/avrprog2-code) or want to reuse code in their own projects.
 
 \a avrprog2 is a linux frontend for the mikroElektronika (http://mikroe.com) AVRprog2 programming hardware.
 
@@ -20,8 +20,8 @@ cd avrprog2
 
 To build the application from a downloaded source package start with:
 @code
-tar xfvz avrprog2-1.0.0.tar.gz
-cd avrprog2-1.0.0
+tar xfvz avrprog2-1.4.2.tar.gz
+cd avrprog2-1.4.2
 @endcode
 
 The following steps are equal in both cases and will compile the application in the build directory.
