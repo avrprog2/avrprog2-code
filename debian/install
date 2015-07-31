@@ -1,0 +1,2 @@
+avrprog2 /usr/bin
+60-avrprog.rules /lib/udev/rules.d

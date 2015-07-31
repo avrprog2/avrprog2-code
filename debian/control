@@ -1,0 +1,25 @@
+Source: avrprog2
+Section: electronics
+Priority: optional
+Maintainer: Christian Kastner <debian@kvr.at>
+Standards-Version: 3.9.6
+Build-Depends:
+    debhelper (>= 9),
+    dh-autoreconf,
+    libusb-1.0-0-dev,
+    binutils-dev,
+    libboost-dev,
+    libboost-filesystem-dev,
+    doxygen,
+    graphviz
+Homepage: http://avrprog2.sourceforge.net
+
+Package: avrprog2
+Architecture: linux-any
+Multi-Arch: foreign
+Depends:
+    ${shlibs:Depends},
+    ${misc:Depends}
+Description: linux tool for the MikroElektronika AVRprog2 programming hardware
+ This is the software part to the MikroElektronika AVRprog2 programming
+ hardware. It is also used by the BIGAVR6 development system.
