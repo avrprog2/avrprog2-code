@@ -1,6 +1,6 @@
 Format: http://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
 Upstream-Name: AVRprog2
-Source: http://avrprog2.sourceforge.net/
+Source: https://github.com/avrprog2/avrprog2-code/
 
 Files: *
 Copyright: 2011-2014, Andreas Hagmann, Embedded Coputing Systems group - TU Wien
@@ -8,6 +8,7 @@ License: GPL-2+
 
 Files: debian/*
 Copyright: 2015, Christian Kastner <debian@kvr.at>
+Copyright: 2015, Martin Perner, Embedded Coputing Systems group - TU Wien <mperner@ecs.tuwien.ac.at>
 License: GPL-2+
 
 License: GPL-2+

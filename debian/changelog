@@ -1,3 +1,10 @@
+avrprog2 (1.4.2-1) unstable; urgency=low
+
+  * Migration to GitHub.
+  * Integration of autogen.sh
+
+ -- Martin Perner <mperner@ecs.tuwien.ac.at>  Fri, 31 Jul 2015 11:43:05 +0100
+
 avrprog2 (1.4.1-1) unstable; urgency=medium
 
   * Initial release.

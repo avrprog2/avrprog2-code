@@ -1,7 +1,7 @@
 Source: avrprog2
 Section: electronics
 Priority: optional
-Maintainer: Christian Kastner <debian@kvr.at>
+Maintainer: Martin Perner <mperner@ecs.tuwien.ac.at>
 Standards-Version: 3.9.6
 Build-Depends:
     debhelper (>= 9),
