@@ -34,7 +34,6 @@ CUSBCommunication::CUSBCommunication(string device) : transfer(NULL), isoReceive
 	int busNr = 0;
 	int deviceNr = 0;
 	int currentConfig = -1;
-	const int desiredConfig = 1;
 
 	// parse device string, should look like "bus:device"
 	if (device.length() != 0) {
@@ -128,12 +127,12 @@ CUSBCommunication::CUSBCommunication(string device) : transfer(NULL), isoReceive
 	}
 
 	// configure the device, if necessary
-	if (currentConfig != desiredConfig) {
+	if (currentConfig != USB_DEVICE_TARGET_CONFIGURATION) {
 		COut::d("Updating USB configuration from " 
 			+ CFormat::intToString(currentConfig)
 			+ " to " 
-			+ CFormat::intToString(desiredConfig));	
-		ret = libusb_set_configuration(dev, desiredConfig);
+			+ CFormat::intToString(USB_DEVICE_TARGET_CONFIGURATION));	
+		ret = libusb_set_configuration(dev, USB_DEVICE_TARGET_CONFIGURATION);
 		if (ret != LIBUSB_SUCCESS) {
 			throw USBCommunicationException("Setting Configuration failed");
 		}

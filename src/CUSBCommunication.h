@@ -25,6 +25,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "avrprog.h"
 #include "ExceptionBase.h"
 
+#define	USB_DEVICE_TARGET_CONFIGURATION (1)
+
 using namespace std;
 
 /**
