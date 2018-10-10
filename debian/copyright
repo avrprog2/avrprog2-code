@@ -6,6 +6,11 @@ Files: *
 Copyright: 2011-2014, Andreas Hagmann, Embedded Coputing Systems group - TU Wien
 License: GPL-2+
 
+Files: src/CUSBCommunication.cpp
+Copyright: 2011-2014, Andreas Hagmann, Embedded Coputing Systems group - TU Wien
+Copyright: 2018, Theodor Mittermair
+License: GPL-2+
+
 Files: debian/*
 Copyright: 2015, Christian Kastner <debian@kvr.at>
 Copyright: 2015, Martin Perner, Embedded Coputing Systems group - TU Wien <mperner@ecs.tuwien.ac.at>

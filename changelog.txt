@@ -1,3 +1,6 @@
+Version 1.4.3
+	- [fix] mitigation of a bug causing the programmer to be unresponsive (#1)
+
 Version 1.4.2
 	- migration from sourceforge to github
 
