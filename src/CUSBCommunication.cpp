@@ -128,10 +128,10 @@ CUSBCommunication::CUSBCommunication(string device) : transfer(NULL), isoReceive
 
 	// configure the device, if necessary
 	if (currentConfig != USB_DEVICE_TARGET_CONFIGURATION) {
-		COut::d("Updating USB configuration from " 
+		COut::d("Updating USB configuration from "
 			+ CFormat::intToString(currentConfig)
-			+ " to " 
-			+ CFormat::intToString(USB_DEVICE_TARGET_CONFIGURATION));	
+			+ " to "
+			+ CFormat::intToString(USB_DEVICE_TARGET_CONFIGURATION));
 		ret = libusb_set_configuration(dev, USB_DEVICE_TARGET_CONFIGURATION);
 		if (ret != LIBUSB_SUCCESS) {
 			throw USBCommunicationException("Setting Configuration failed");
