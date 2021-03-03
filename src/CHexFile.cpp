@@ -47,7 +47,7 @@ void CHexFile::save(uint8_t *buffer, int size) {
 	}
 
 	// set format to object
-	if (!bfd_set_format(outputFile, bfd_object)) {
+	if (!bfd_set_section_size(section, size)) {
 		throw FileException("Could not write to '" + path + "'.\n" + bfd_errmsg(bfd_get_error()));
 	}
 
